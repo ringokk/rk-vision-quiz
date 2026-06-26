@@ -1,0 +1,1349 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>睿抗机器视觉刷题</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f5f0;
+      --panel: #ffffff;
+      --ink: #1f2528;
+      --muted: #667176;
+      --line: #dedbd0;
+      --soft: #ece9df;
+      --brand: #0f766e;
+      --brand-strong: #0b5d56;
+      --accent: #b45309;
+      --danger: #c2410c;
+      --ok: #15803d;
+      --shadow: 0 18px 50px rgba(31, 37, 40, .09);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      background:
+        linear-gradient(135deg, rgba(15, 118, 110, .08), transparent 34%),
+        linear-gradient(315deg, rgba(180, 83, 9, .08), transparent 30%),
+        var(--bg);
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+      color: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: var(--radius);
+      min-height: 38px;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    button:hover { border-color: #b9b4a7; transform: translateY(-1px); }
+    button:disabled { cursor: not-allowed; opacity: .45; transform: none; }
+
+    .app {
+      width: min(1440px, 100%);
+      margin: 0 auto;
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 292px minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .sidebar, .main, .drawer {
+      background: rgba(255, 255, 255, .86);
+      border: 1px solid rgba(222, 219, 208, .9);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 22px;
+      height: calc(100vh - 44px);
+      border-radius: 10px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 4px;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      background: #0f766e;
+      color: white;
+      border-radius: 8px;
+      font-weight: 800;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.15;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tabs {
+      display: grid;
+      gap: 7px;
+    }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 12px;
+      text-align: left;
+      background: transparent;
+    }
+
+    .tab.active {
+      color: white;
+      background: var(--brand);
+      border-color: var(--brand);
+    }
+
+    .tab small {
+      color: inherit;
+      opacity: .75;
+      font-size: 11px;
+    }
+
+    .panel {
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .field input, .field select, .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.75);
+      min-height: 38px;
+      padding: 8px 10px;
+      outline: none;
+    }
+
+    .field textarea { min-height: 84px; resize: vertical; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(15,118,110,.13); }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .segmented button.active {
+      color: white;
+      background: var(--ink);
+      border-color: var(--ink);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .stat {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(246, 245, 240, .58);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 21px;
+      line-height: 1.1;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .main {
+      min-height: calc(100vh - 44px);
+      border-radius: 10px;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.62);
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .topbar p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 40px;
+      padding: 0;
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .primary {
+      color: white;
+      background: var(--brand);
+      border-color: var(--brand);
+      padding: 0 14px;
+      font-weight: 700;
+    }
+
+    .primary:hover { background: var(--brand-strong); border-color: var(--brand-strong); }
+
+    .danger { color: var(--danger); }
+
+    .content {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 312px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .question-area {
+      min-width: 0;
+      display: grid;
+      gap: 14px;
+    }
+
+    .question-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(31,37,40,.05);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: #4b5560;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .pill.ok { color: var(--ok); background: rgba(21,128,61,.1); }
+    .pill.warn { color: var(--accent); background: rgba(180,83,9,.12); }
+    .pill.bad { color: var(--danger); background: rgba(194,65,12,.1); }
+
+    .stem {
+      margin: 0;
+      font-size: clamp(20px, 2vw, 28px);
+      line-height: 1.55;
+      font-weight: 760;
+      overflow-wrap: anywhere;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .option {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      padding: 12px;
+      min-height: 58px;
+      background: #fcfbf7;
+    }
+
+    .option .letter {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--soft);
+      font-weight: 800;
+    }
+
+    .option.selected {
+      border-color: var(--brand);
+      background: rgba(15,118,110,.08);
+    }
+
+    .option.correct {
+      border-color: rgba(21,128,61,.55);
+      background: rgba(21,128,61,.1);
+    }
+
+    .option.wrong {
+      border-color: rgba(194,65,12,.55);
+      background: rgba(194,65,12,.1);
+    }
+
+    .option p {
+      margin: 0;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .result {
+      display: none;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      background: #fbfaf6;
+    }
+
+    .result.show { display: grid; gap: 12px; }
+    .result h3 { margin: 0; font-size: 16px; }
+    .result p { margin: 0; color: var(--muted); line-height: 1.55; }
+
+    .review-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .drawer {
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 12px 30px rgba(31,37,40,.05);
+    }
+
+    .drawer h3 {
+      margin: 0 0 12px;
+      font-size: 15px;
+    }
+
+    .progress-line {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--soft);
+      overflow: hidden;
+    }
+
+    .progress-line span {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--brand), #84cc16);
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 8px;
+      max-height: 330px;
+      overflow: auto;
+    }
+
+    .mini-item {
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fcfbf7;
+      text-align: left;
+    }
+
+    .mini-item.active { border-color: var(--brand); box-shadow: inset 3px 0 0 var(--brand); }
+    .mini-item strong { font-size: 13px; }
+    .mini-item span {
+      color: var(--muted);
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .heatmap {
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      gap: 4px;
+    }
+
+    .dot {
+      aspect-ratio: 1;
+      border-radius: 3px;
+      background: #e8e4d8;
+      border: 0;
+      min-height: 0;
+      padding: 0;
+    }
+
+    .dot.seen { background: #bdd7d2; }
+    .dot.right { background: #15803d; }
+    .dot.wrong { background: #c2410c; }
+    .dot.current { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+    .browse {
+      display: none;
+      grid-column: 1 / -1;
+    }
+
+    .browse.show {
+      display: grid;
+      gap: 12px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 10px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+    }
+
+    .table th, .table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    .table th {
+      color: var(--muted);
+      background: #f7f4eb;
+      font-weight: 700;
+    }
+
+    .table tr:hover td { background: rgba(15,118,110,.05); }
+    .table button { min-height: 30px; padding: 0 10px; }
+
+    .exam-bar {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 10px;
+    }
+
+    .exam-bar.show { display: flex; }
+
+    .exam-home {
+      display: none;
+      gap: 16px;
+    }
+
+    .exam-home.show {
+      display: grid;
+    }
+
+    .exam-hero {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(31,37,40,.05);
+    }
+
+    .exam-hero h3 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .exam-hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .score {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .score strong {
+      font-size: clamp(42px, 8vw, 72px);
+      line-height: 1;
+      color: var(--brand);
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      width: min(360px, calc(100vw - 44px));
+      display: none;
+      padding: 13px 15px;
+      border-radius: 10px;
+      background: #1f2528;
+      color: white;
+      box-shadow: var(--shadow);
+      z-index: 5;
+    }
+
+    .toast.show { display: block; }
+
+    @media (max-width: 1080px) {
+      .app { grid-template-columns: 1fr; padding: 12px; }
+      .sidebar { position: static; height: auto; }
+      .content { grid-template-columns: 1fr; }
+      .side-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 680px) {
+      .topbar, .content { padding: 14px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .actions { justify-content: flex-start; width: 100%; }
+      .question-card { padding: 18px; }
+      .side-stack { grid-template-columns: 1fr; }
+      .review-buttons { grid-template-columns: 1fr; }
+      .heatmap { grid-template-columns: repeat(10, 1fr); }
+      .stem { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="mark">RK</div>
+        <div>
+          <h1>睿抗机器视觉刷题</h1>
+          <p>200 题 · 本地进度</p>
+        </div>
+      </div>
+
+      <nav class="tabs" id="modeTabs"></nav>
+
+      <section class="panel">
+        <h2>筛选</h2>
+        <div class="field">
+          <label for="searchInput">搜索</label>
+          <input id="searchInput" type="search" placeholder="题干 / 选项 / 解析">
+        </div>
+        <div class="field">
+          <label for="categorySelect">分类</label>
+          <select id="categorySelect"></select>
+        </div>
+        <div class="field">
+          <label for="tagSelect">标签</label>
+          <select id="tagSelect"></select>
+        </div>
+        <div class="segmented" id="typeTabs">
+          <button data-type="all" class="active">全部</button>
+          <button data-type="single">单选</button>
+          <button data-type="multiple">多选</button>
+          <button data-type="judge">判断</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>总览</h2>
+        <div class="stats-grid">
+          <div class="stat"><strong id="statAnswered">0</strong><span>已练</span></div>
+          <div class="stat"><strong id="statRate">0%</strong><span>正确率</span></div>
+          <div class="stat"><strong id="statWrong">0</strong><span>错题</span></div>
+          <div class="stat"><strong id="statDue">0</strong><span>待复习</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>数据</h2>
+        <div class="segmented">
+          <button id="exportBtn" title="导出进度">导出</button>
+          <button id="importBtn" title="导入进度">导入</button>
+          <button id="resetBtn" class="danger" title="清空本地进度">重置</button>
+          <button id="printBtn" title="打印当前题目">打印</button>
+        </div>
+        <input id="importFile" type="file" accept="application/json" hidden>
+      </section>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="viewTitle">智能练习</h2>
+          <p id="viewSubtitle">优先安排错题、到期复习题和未练题。</p>
+        </div>
+        <div class="actions">
+          <button id="prevBtn" class="icon-btn" title="上一题">←</button>
+          <button id="randomBtn" class="icon-btn" title="随机一题">⤨</button>
+          <button id="favBtn" class="icon-btn" title="收藏">☆</button>
+          <button id="submitBtn" class="primary">提交</button>
+          <button id="nextBtn" class="primary">下一题</button>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="question-area" id="practiceView">
+          <section class="exam-home" id="examHome"></section>
+          <div class="exam-bar" id="examBar">
+            <strong id="examTimer">00:00</strong>
+            <span id="examProgress">0 / 0</span>
+            <span id="examMix">单选 30 · 多选 10 · 判断 10</span>
+            <button id="finishExamBtn">交卷</button>
+          </div>
+          <article class="question-card" id="questionCard">
+            <div class="meta-row" id="metaRow"></div>
+            <p class="stem" id="stem"></p>
+            <div class="options" id="options"></div>
+          </article>
+          <section class="result" id="resultBox"></section>
+          <section class="drawer" id="noteDrawer">
+            <h3>我的笔记</h3>
+            <div class="field">
+              <textarea id="noteInput" placeholder="写下容易混淆的点"></textarea>
+            </div>
+          </section>
+        </div>
+
+        <aside class="side-stack" id="sideStack">
+          <section class="drawer">
+            <h3>当前进度</h3>
+            <div class="progress-line"><span id="progressFill"></span></div>
+            <div class="stats-grid" style="margin-top:12px">
+              <div class="stat"><strong id="statStreak">0</strong><span>连对</span></div>
+              <div class="stat"><strong id="statMastered">0</strong><span>掌握</span></div>
+            </div>
+          </section>
+
+          <section class="drawer">
+            <h3>题目地图</h3>
+            <div class="heatmap" id="heatmap"></div>
+          </section>
+
+          <section class="drawer">
+            <h3>推荐队列</h3>
+            <div class="mini-list" id="queueList"></div>
+          </section>
+        </aside>
+
+        <section class="browse" id="browseView">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>题号</th>
+                <th>题干</th>
+                <th>分类</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="browseBody"></tbody>
+          </table>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const QUESTIONS = [{"id":1,"stem":"在进行视觉定位引导时，需要通过_______来建立视觉坐标系与机械手坐标系之间的对应关系。","options":[{"label":"A","text":"检测"},{"label":"B","text":"标定"},{"label":"C","text":"定位"},{"label":"D","text":"曝光"}],"answer":["B"],"category":"机器视觉基础","tags":["综合"],"explanation":"视觉定位引导需要把相机看到的位置换算到机器人坐标系中，核心步骤就是完成视觉坐标系与机械手坐标系的标定关系。 正确选项是 B. 标定。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":2,"stem":"_______的目的在于提高图像信息的可读取性，增强兴趣区域和非兴趣区域的可分离性，增强缺陷判别效果。","options":[{"label":"A","text":"图像增强"},{"label":"B","text":"图像降噪"},{"label":"C","text":"阈值分割"},{"label":"D","text":"图像矫正"}],"answer":["A"],"category":"图像处理基础","tags":["综合"],"explanation":"本题考查图像预处理、分割、测量或检测的基础概念，关键是区分各算法的用途和输出结果。 正确选项是 A. 图像增强。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":3,"stem":"表面缺陷包括_______。","options":[{"label":"A","text":"金属表面的划痕、斑点、孔洞"},{"label":"B","text":"纸张表面的色差、压痕"},{"label":"C","text":"玻璃等非金属表面的夹杂、破损、污点、划痕"},{"label":"D","text":"以上都是"}],"answer":["D"],"category":"图像处理基础","tags":["综合"],"explanation":"表面缺陷通常覆盖划痕、斑点、孔洞、色差、压痕、破损、污点等外观异常，金属、纸张、玻璃等材料都可能出现。 正确选项是 D. 以上都是。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":4,"stem":"图像增强不包括_______。增强图像中的有用信息，改善图像的视觉效果。","options":[{"label":"A","text":"锐化"},{"label":"B","text":"对比度调节"},{"label":"C","text":"Gamma调节和亮度校正"},{"label":"D","text":"图像矫正"}],"answer":["D"],"category":"图像处理基础","tags":["综合"],"explanation":"图像增强的目的不是改变被测物本身，而是突出有用信息、削弱干扰信息，让后续分割、测量或检测更稳定。 正确选项是 D. 图像矫正。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":5,"stem":"_______对输入图像进行均值滤波，获取均值滤波图像与原图像进行对比得到图像残差，依据某种规律进行像素重置，主要用于对输入的光照不均匀图像进行光照校正。","options":[{"label":"A","text":"图像矫正"},{"label":"B","text":"阴影校正"},{"label":"C","text":"如下增强"},{"label":"D","text":"图像滤波"}],"answer":["B"],"category":"图像处理基础","tags":["综合"],"explanation":"本题考查图像预处理、分割、测量或检测的基础概念，关键是区分各算法的用途和输出结果。 正确选项是 B. 阴影校正。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":6,"stem":"图像的二值化处理就是将图像上的点的灰度置为0或255，也就是将整个图像呈现出明显的黑白效果。下列不属于图像二值化类型的是_______。","options":[{"label":"A","text":"硬阈值二值化"},{"label":"B","text":"中值二值化"},{"label":"C","text":"均值二值化"},{"label":"D","text":"高斯二值化"}],"answer":["B"],"category":"图像处理基础","tags":["综合"],"explanation":"二值化是把灰度图按阈值分成前景和背景，典型结果是 0 与 255 两类像素；中值滤波属于去噪，不是二值化类型。 正确选项是 B. 中值二值化。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":7,"stem":"使用淘宝App，的“拍立淘”扫描水杯，搜索出类似的水杯。这是实例使用了_______搜索。","options":[{"label":"A","text":"模板匹配"},{"label":"B","text":"模板查询"},{"label":"C","text":"特征提取"},{"label":"D","text":"机器视觉"}],"answer":["A"],"category":"机器视觉基础","tags":["综合"],"explanation":"本题考查机器视觉系统的基础概念，重点是理解正确选项对应的工程含义。 正确选项是 A. 模板匹配。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":8,"stem":"产品尺寸为，重复测量精度为0.2mm，相机的分辨率应该选多少？","options":[{"label":"A","text":"200万：1600×1200"},{"label":"B","text":"500万：2592×1944"},{"label":"C","text":"30万：640×480"},{"label":"D","text":"130万：1280×1024"}],"answer":["C"],"category":"视觉软件应用","tags":["基础","常识"],"explanation":"相机相关题通常围绕分辨率、曝光、帧率、像素格式和采集方式；参数选择要服务于测量精度和成像质量。 正确选项是 C. 30万：640×480。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":9,"stem":"PCB（如图所示）焊点检测，应该选择_______光源。","options":[{"label":"A","text":"白色"},{"label":"B","text":"AOI三色光源"},{"label":"C","text":"红色"},{"label":"D","text":"蓝色"}],"answer":["B"],"category":"视觉软件应用","tags":["基础","常识"],"explanation":"工业视觉选光源要看材质、表面反光、缺陷类型和检测目的；焊点等金属反光目标常借助专用多色或结构化照明突出形貌。 正确选项是 B. AOI三色光源。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":10,"stem":"在Dobot Vision Studio中，使用_______工具可以快速的得到圆形物体的周长。","options":[{"label":"A","text":"圆查找"},{"label":"B","text":"BLIOCK分析"},{"label":"C","text":"圆拟合"},{"label":"D","text":"间距测量"}],"answer":["B"],"category":"机器人与标定","tags":["综合"],"explanation":"圆查找、圆拟合和圆测量通常依赖边缘点提取，再根据边缘点拟合圆心、半径、直径或周长等参数。 正确选项是 B. BLIOCK分析。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":11,"stem":"属于圆测量范围的是_______。","options":[{"label":"A","text":"轴类工件的直径测量"},{"label":"B","text":"面板圆孔的直径测量"},{"label":"C","text":"工件的内外径"},{"label":"D","text":"以上都是"}],"answer":["D"],"category":"视觉软件应用","tags":["综合"],"explanation":"圆查找、圆拟合和圆测量通常依赖边缘点提取，再根据边缘点拟合圆心、半径、直径或周长等参数。 正确选项是 D. 以上都是。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":12,"stem":"Magician E6的精度是多少mm？","options":[{"label":"A","text":"±0.1"},{"label":"B","text":"±0.2"},{"label":"C","text":"±0.3"},{"label":"D","text":"±0.4"}],"answer":["A"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 A. ±0.1。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":13,"stem":"如果当前的镜头画面过暗时，我们可以通过更改（ ）来提高画面亮度","options":[{"label":"A","text":"帧率"},{"label":"B","text":"曝光时间"},{"label":"C","text":"像素格式"},{"label":"D","text":"图像宽度"}],"answer":["B"],"category":"视觉软件应用","tags":["基础"],"explanation":"镜头焦距、光圈、景深、视场角和畸变互相关联；焦距越短通常视场角越大、畸变更明显。 正确选项是 B. 曝光时间。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":14,"stem":"视觉软件的字符阅读顺序是（ ）","options":[{"label":"A","text":"从上往下"},{"label":"B","text":"从下往上"},{"label":"C","text":"从左往右"},{"label":"D","text":"从右往左"}],"answer":["C"],"category":"视觉软件应用","tags":["基础"],"explanation":"字符识别通常包含图像采集、预处理、ROI 分割、字符训练/模板学习和识别输出，训练与识别阶段参数应保持一致。 正确选项是 C. 从左往右。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":15,"stem":"通常在字符训练时，以下哪种情况不会导致字符提取时出错。（ ）","options":[{"label":"A","text":"字符宽度"},{"label":"B","text":"字符高度"},{"label":"C","text":"字符极性"},{"label":"D","text":"字符数量"}],"answer":["D"],"category":"视觉软件应用","tags":["基础"],"explanation":"字符识别通常包含图像采集、预处理、ROI 分割、字符训练/模板学习和识别输出，训练与识别阶段参数应保持一致。 正确选项是 D. 字符数量。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":16,"stem":"圆测量中图像分析主要实现对图像的_______。","options":[{"label":"A","text":"模板匹配"},{"label":"B","text":"模板匹配和边缘提取"},{"label":"C","text":"边缘提取"},{"label":"D","text":"以上都不是"}],"answer":["B"],"category":"图像处理基础","tags":["综合"],"explanation":"圆查找、圆拟合和圆测量通常依赖边缘点提取，再根据边缘点拟合圆心、半径、直径或周长等参数。 正确选项是 B. 模板匹配和边缘提取。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":17,"stem":"属于圆测量范围的是_______。","options":[{"label":"A","text":"工件的内外径"},{"label":"B","text":"面板圆孔的直径测量"},{"label":"C","text":"轴类工件的直径测量"},{"label":"D","text":"以上都是"}],"answer":["D"],"category":"图像处理基础","tags":["综合"],"explanation":"圆查找、圆拟合和圆测量通常依赖边缘点提取，再根据边缘点拟合圆心、半径、直径或周长等参数。 正确选项是 D. 以上都是。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":18,"stem":"中国最常用是_______条形码。","options":[{"label":"A","text":"二五条形码"},{"label":"B","text":"UPC条形码"},{"label":"C","text":"EAN条形码"},{"label":"D","text":"128条形码"}],"answer":["C"],"category":"识别与检测","tags":["综合"],"explanation":"条形码识别依赖条空宽度、编码规则和图像质量；常见商品码多采用 EAN/UPC 体系。 正确选项是 C. EAN条形码。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":19,"stem":"_______适用于贸易交易中。","options":[{"label":"A","text":"三九码"},{"label":"B","text":"二五码"},{"label":"C","text":"EAN-13"},{"label":"D","text":"UPC/EAN"}],"answer":["C"],"category":"机器视觉基础","tags":["综合"],"explanation":"本题考查机器视觉系统的基础概念，重点是理解正确选项对应的工程含义。 正确选项是 C. EAN-13。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":20,"stem":"由于条形码和摄像头的角度问题，使得条形码图像和直角坐标系有一定的倾斜角度，为了方便后续处理，通常用_______对图像进行矫正。","options":[{"label":"A","text":"放大变换"},{"label":"B","text":"缩小变换"},{"label":"C","text":"几何变换"},{"label":"D","text":"旋转变换"}],"answer":["D"],"category":"识别与检测","tags":["综合"],"explanation":"条形码识别依赖条空宽度、编码规则和图像质量；常见商品码多采用 EAN/UPC 体系。 正确选项是 D. 旋转变换。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":21,"stem":"乘坐公交，使用乘车码是_______。","options":[{"label":"A","text":"CODE49"},{"label":"B","text":"Data Matrix"},{"label":"C","text":"QR 码"},{"label":"D","text":"Code 16K"}],"answer":["C"],"category":"识别与检测","tags":["综合"],"explanation":"本题考查条码、二维码、字符或缺陷识别流程，核心是图像质量、特征提取和识别规则的匹配。 正确选项是 C. QR 码。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":22,"stem":"常用的条形码识别算法有_______。","options":[{"label":"A","text":"平均值法"},{"label":"B","text":"宽度测量法"},{"label":"C","text":"相似边距离测量法"},{"label":"D","text":"以上都是"}],"answer":["D"],"category":"识别与检测","tags":["综合"],"explanation":"条形码识别依赖条空宽度、编码规则和图像质量；常见商品码多采用 EAN/UPC 体系。 正确选项是 D. 以上都是。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":23,"stem":"矩阵式二维码主要有_______等码制。","options":[{"label":"A","text":"Data Matrix"},{"label":"B","text":"QR码"},{"label":"C","text":"Maxi Code"},{"label":"D","text":"以上都是"}],"answer":["D"],"category":"识别与检测","tags":["综合"],"explanation":"二维码识别受码图清晰度、对比度、畸变、遮挡和定位图形影响，图像质量越好识别成功率通常越高。 正确选项是 D. 以上都是。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":24,"stem":"图像的二值化处理就是将图像上的点的灰度置为0或255，也就是将整个图像呈现出明显的黑白效果。下列不属于图像二值化类型的是_______。","options":[{"label":"A","text":"硬阈值二值化"},{"label":"B","text":"均值二值化"},{"label":"C","text":"中值二值化"},{"label":"D","text":"高斯二值化"}],"answer":["C"],"category":"图像处理基础","tags":["综合"],"explanation":"二值化是把灰度图按阈值分成前景和背景，典型结果是 0 与 255 两类像素；中值滤波属于去噪，不是二值化类型。 正确选项是 C. 中值二值化。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":25,"stem":"在Dobot Vision Studio中，_______工具可转换距离、宽度等像素单位到物理单位。","options":[{"label":"A","text":"单位转换"},{"label":"B","text":"标定转换"},{"label":"C","text":"变量计算"},{"label":"D","text":"N点标定"}],"answer":["A"],"category":"机器人与标定","tags":["综合"],"explanation":"Dobot Vision Studio 中不同工具面向定位、测量、识别、标定和逻辑处理，答题时要抓住工具名称对应的功能边界。 正确选项是 A. 单位转换。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":26,"stem":"图像处理方式不包括_______。","options":[{"label":"A","text":"几何变换"},{"label":"B","text":"二值化"},{"label":"C","text":"特征提取"},{"label":"D","text":"灰度变换"}],"answer":["C"],"category":"图像处理基础","tags":["基础","常识"],"explanation":"本题考查图像预处理、分割、测量或检测的基础概念，关键是区分各算法的用途和输出结果。 正确选项是 C. 特征提取。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":27,"stem":"光源的作用有哪些？","options":[{"label":"A","text":"照明目标，提高目标亮度，克服环境光干扰，保证图像的稳定性"},{"label":"B","text":"形成最有利于图像处理的成像效果"},{"label":"C","text":"凸显出缺陷和背景的差异，提高图像对比度"},{"label":"D","text":"以上都是"}],"answer":["D"],"category":"成像与光学","tags":["基础","常识"],"explanation":"工业视觉选光源要看材质、表面反光、缺陷类型和检测目的；焊点等金属反光目标常借助专用多色或结构化照明突出形貌。 正确选项是 D. 以上都是。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":28,"stem":"选用1\"相机，拍摄物体尺寸为90mm×60mm，镜头到拍摄物体间距离为250mm，应该选择_______焦距的镜头.","options":[{"label":"A","text":"35mm"},{"label":"B","text":"50mm"},{"label":"C","text":"12mm"},{"label":"D","text":"25mm"}],"answer":["B"],"category":"成像与光学","tags":["基础","常识"],"explanation":"相机相关题通常围绕分辨率、曝光、帧率、像素格式和采集方式；参数选择要服务于测量精度和成像质量。 正确选项是 B. 50mm。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":29,"stem":"选用2/3\"相机，拍摄物体尺寸为220mm×150mm，镜头到拍摄物体间距离为250mm，应该选择_______焦距的镜头.","options":[{"label":"A","text":"16mm"},{"label":"B","text":"25mm"},{"label":"C","text":"8mm"},{"label":"D","text":"12mm"}],"answer":["D"],"category":"成像与光学","tags":["基础","常识"],"explanation":"相机相关题通常围绕分辨率、曝光、帧率、像素格式和采集方式；参数选择要服务于测量精度和成像质量。 正确选项是 D. 12mm。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":30,"stem":"选用1/2\"相机，拍摄物体尺寸为220mm×150mm，镜头到拍摄物体间距离为250mm，应该选择_______焦距的镜头。","options":[{"label":"A","text":"16mm"},{"label":"B","text":"25mm"},{"label":"C","text":"8mm"},{"label":"D","text":"12mm"}],"answer":["C"],"category":"成像与光学","tags":["基础","常识"],"explanation":"相机相关题通常围绕分辨率、曝光、帧率、像素格式和采集方式；参数选择要服务于测量精度和成像质量。 正确选项是 C. 8mm。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":31,"stem":"机器人的\"路径规划\"指的是什么？","options":[{"label":"A","text":"确定最有效的旅行路线"},{"label":"B","text":"设定机器人的工作时间表"},{"label":"C","text":"选择机器人的颜色方案"},{"label":"D","text":"决定机器人的移动顺序和方向"}],"answer":["D"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 D. 决定机器人的移动顺序和方向。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":32,"stem":"在何处找到机器人的序列号？","options":[{"label":"A","text":"控制柜铭牌"},{"label":"B","text":"驱动板"},{"label":"C","text":"操作面板"},{"label":"D","text":"底座"}],"answer":["D"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 D. 底座。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":33,"stem":"机器人经常使用的程序可以设置为主程序, 每台机器人可以设置（ ）主程序？","options":[{"label":"A","text":"3个"},{"label":"B","text":"1个"},{"label":"C","text":"5个"},{"label":"D","text":"无限制"}],"answer":["B"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 B. 1个。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":34,"stem":"为了获得非常平稳的加工过程，希望作业启动（位置为零）时（ ）？","options":[{"label":"A","text":"速度恒定，加速度为零"},{"label":"B","text":"速度恒定，加速度恒定"},{"label":"C","text":"速度为零，加速度为零"},{"label":"D","text":"速度为零，加速度恒定"}],"answer":["C"],"category":"机器视觉基础","tags":["综合"],"explanation":"本题考查机器视觉系统的基础概念，重点是理解正确选项对应的工程含义。 正确选项是 C. 速度为零，加速度为零。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":35,"stem":"示教-再现控制为一种在线编程方式，它的最大问题是（ ）？","options":[{"label":"A","text":"操作人员劳动强度大"},{"label":"B","text":"容易产生废品"},{"label":"C","text":"操作人员安全问题"},{"label":"D","text":"占用生产时间"}],"answer":["D"],"category":"机器视觉基础","tags":["综合"],"explanation":"本题考查机器视觉系统的基础概念，重点是理解正确选项对应的工程含义。 正确选项是 D. 占用生产时间。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":36,"stem":"机器人语言是由（ ）表示的\"0\"和\"1\"组成的字串机器码？","options":[{"label":"A","text":"十进制"},{"label":"B","text":"八进制"},{"label":"C","text":"二进制"},{"label":"D","text":"十六进制"}],"answer":["C"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 C. 二进制。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":37,"stem":"工业机器人按照技术水平分类，第二代工业机器人称为（ ）？","options":[{"label":"A","text":"情感机器人"},{"label":"B","text":"智能机器人"},{"label":"C","text":"感知机器人"},{"label":"D","text":"示教再现型机器人"}],"answer":["C"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 C. 感知机器人。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":38,"stem":"按机器人结构坐标系的特点分类，操作灵活性最好的机器人是（ ）？","options":[{"label":"A","text":"直角坐标型机器人"},{"label":"B","text":"多关节坐标型机器人"},{"label":"C","text":"极坐标型机器人"},{"label":"D","text":"圆柱坐标型机器人"}],"answer":["B"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 B. 多关节坐标型机器人。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":39,"stem":"物体在三维空间中，水平移动的自由度有（ ）个？","options":[{"label":"A","text":"1"},{"label":"B","text":"2"},{"label":"C","text":"3"},{"label":"D","text":"6"}],"answer":["C"],"category":"机器视觉基础","tags":["综合"],"explanation":"本题考查机器视觉系统的基础概念，重点是理解正确选项对应的工程含义。 正确选项是 C. 3。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":40,"stem":"（ ）指连接在机器人末端法兰上的工具。也就是指机器人的手部？","options":[{"label":"A","text":"奇异形位"},{"label":"B","text":"末端执行器"},{"label":"C","text":"TCP"},{"label":"D","text":"工作空间"}],"answer":["B"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 B. 末端执行器。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":41,"stem":"机器人正常运行时，末端执行器工具中心点所能在空间活动的围称为？","options":[{"label":"A","text":"灵活工作空间"},{"label":"B","text":"工作空间"},{"label":"C","text":"次工作空间"},{"label":"D","text":"奇异形位"}],"answer":["B"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 B. 工作空间。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":42,"stem":"什么是视觉系统的光照条件重要性？","options":[{"label":"A","text":"它决定了系统的耗电量"},{"label":"B","text":"它影响图像的质量"},{"label":"C","text":"它改变了图像的大小"},{"label":"D","text":"它影响了系统的运行速度"}],"answer":["B"],"category":"机器视觉基础","tags":["综合"],"explanation":"本题考查机器视觉系统的基础概念，重点是理解正确选项对应的工程含义。 正确选项是 B. 它影响图像的质量。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":43,"stem":"机器学习在机器视觉中的主要应用是什么？","options":[{"label":"A","text":"数据存储"},{"label":"B","text":"模式识别"},{"label":"C","text":"动态分析"},{"label":"D","text":"特征提取"}],"answer":["B"],"category":"机器视觉基础","tags":["综合"],"explanation":"本题考查机器视觉系统的基础概念，重点是理解正确选项对应的工程含义。 正确选项是 B. 模式识别。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":44,"stem":"机器视觉中的立体视觉是指什么？","options":[{"label":"A","text":"深度感知"},{"label":"B","text":"二维成像"},{"label":"C","text":"三维建模"},{"label":"D","text":"图像增强"}],"answer":["A"],"category":"机器视觉基础","tags":["综合"],"explanation":"本题考查机器视觉系统的基础概念，重点是理解正确选项对应的工程含义。 正确选项是 A. 深度感知。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":45,"stem":"在机器视觉系统中，哪个组件负责将光信号转换为电信号？","options":[{"label":"A","text":"光源"},{"label":"B","text":"图像处理器"},{"label":"C","text":"镜头"},{"label":"D","text":"相机传感器"}],"answer":["D"],"category":"机器视觉基础","tags":["综合"],"explanation":"本题考查机器视觉系统的基础概念，重点是理解正确选项对应的工程含义。 正确选项是 D. 相机传感器。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":46,"stem":"大小为1024X1024,灰度级别为256色的图像文件大小为：______？","options":[{"label":"A","text":"1MB"},{"label":"B","text":"1.5MB"},{"label":"C","text":"2MB"},{"label":"D","text":"512kb"}],"answer":["A"],"category":"图像处理基础","tags":["综合"],"explanation":"本题考查图像预处理、分割、测量或检测的基础概念，关键是区分各算法的用途和输出结果。 正确选项是 A. 1MB。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":47,"stem":"镜头按视角可分为______？","options":[{"label":"A","text":"定焦镜头、变焦镜头、普通镜头"},{"label":"B","text":"定焦镜头、变焦镜头、广角镜头"},{"label":"C","text":"普通镜头、广角镜头、远摄镜头"},{"label":"D","text":"针孔镜头、广角镜头、定光圈镜头"}],"answer":["C"],"category":"成像与光学","tags":["综合"],"explanation":"镜头焦距、光圈、景深、视场角和畸变互相关联；焦距越短通常视场角越大、畸变更明显。 正确选项是 C. 普通镜头、广角镜头、远摄镜头。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":48,"stem":"人工视觉的特点是______？","options":[{"label":"A","text":"效率低"},{"label":"B","text":"精度低"},{"label":"C","text":"适应性差"},{"label":"D","text":"成本高"}],"answer":["C"],"category":"机器视觉基础","tags":["综合"],"explanation":"本题考查机器视觉系统的基础概念，重点是理解正确选项对应的工程含义。 正确选项是 C. 适应性差。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":49,"stem":"图像与灰度直方图间的对应关系是：______？","options":[{"label":"A","text":"一一对应"},{"label":"B","text":"多对多"},{"label":"C","text":"一对多"},{"label":"D","text":"多对一"}],"answer":["D"],"category":"图像处理基础","tags":["综合"],"explanation":"本题考查图像预处理、分割、测量或检测的基础概念，关键是区分各算法的用途和输出结果。 正确选项是 D. 多对一。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":50,"stem":"哪个标准不适用于衡量图像的色彩准确性？","options":[{"label":"A","text":"色相"},{"label":"B","text":"对比度"},{"label":"C","text":"分辨率"},{"label":"D","text":"饱和度"}],"answer":["C"],"category":"图像处理基础","tags":["综合"],"explanation":"本题考查图像预处理、分割、测量或检测的基础概念，关键是区分各算法的用途和输出结果。 正确选项是 C. 分辨率。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":51,"stem":"在机器视觉中，用于表示图像亮度的数字数组被称作什么？","options":[{"label":"A","text":"直方图"},{"label":"B","text":"灰度图"},{"label":"C","text":"位图"},{"label":"D","text":"像素地图"}],"answer":["B"],"category":"图像处理基础","tags":["综合"],"explanation":"本题考查图像预处理、分割、测量或检测的基础概念，关键是区分各算法的用途和输出结果。 正确选项是 B. 灰度图。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":52,"stem":"常用的特征提取方法有_______。","options":[{"label":"A","text":"颜色矩法"},{"label":"B","text":"颜色直方图法"},{"label":"C","text":"颜色集法"},{"label":"D","text":"以上都是"}],"answer":["D"],"category":"机器视觉基础","tags":["综合"],"explanation":"本题考查机器视觉系统的基础概念，重点是理解正确选项对应的工程含义。 正确选项是 D. 以上都是。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":53,"stem":"模板匹配的核心是_______。","options":[{"label":"A","text":"模板查询"},{"label":"B","text":"相似度测量"},{"label":"C","text":"特征提取"},{"label":"D","text":"以上都是"}],"answer":["D"],"category":"图像处理基础","tags":["综合"],"explanation":"模板匹配用已知模板在图像中搜索相似区域，适合固定外形、固定姿态或相似物体的定位与检索。 正确选项是 D. 以上都是。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":54,"stem":"_______是模板匹配的基础。","options":[{"label":"A","text":"相似度测量"},{"label":"B","text":"特征提取与表达"},{"label":"C","text":"模板查询"},{"label":"D","text":"以上都是"}],"answer":["B"],"category":"图像处理基础","tags":["综合"],"explanation":"模板匹配用已知模板在图像中搜索相似区域，适合固定外形、固定姿态或相似物体的定位与检索。 正确选项是 B. 特征提取与表达。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":55,"stem":"下列Magician E6机器人指令中，( )是从当前位置以点到点方式运动至目标关节角度。","options":[{"label":"A","text":"Arc(P1)"},{"label":"B","text":"MovJ(P)"},{"label":"C","text":"MovL(P1)"},{"label":"D","text":"Move(RP(P1,{50,10,32}))"}],"answer":["B"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 B. MovJ(P)。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":56,"stem":"在对机器⼈进行示教时, 外部设备发出的启动信号（ ）。","options":[{"label":"A","text":"无效"},{"label":"B","text":"有效"},{"label":"C","text":"延时后有效"},{"label":"D","text":"视情况而定"}],"answer":["A"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 A. 无效。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":57,"stem":"在机器视觉中，\"光度学\"是指什么？","options":[{"label":"A","text":"光学透镜的设计"},{"label":"B","text":"液体的科学和测量"},{"label":"C","text":"光线的科学和测量"},{"label":"D","text":"光合作用的科学"}],"answer":["C"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 C. 光线的科学和测量。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":58,"stem":"OCR技术主要应用于什么领域？","options":[{"label":"A","text":"自动读取和识别印刷文字"},{"label":"B","text":"语音到文本转换"},{"label":"C","text":"光学仪器校准"},{"label":"D","text":"无线通信"}],"answer":["A"],"category":"识别与检测","tags":["综合"],"explanation":"本题考查条码、二维码、字符或缺陷识别流程，核心是图像质量、特征提取和识别规则的匹配。 正确选项是 A. 自动读取和识别印刷文字。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":59,"stem":"什么是机器视觉中的\"二值化\"？","options":[{"label":"A","text":"将图像分为两个部分"},{"label":"B","text":"对图像进行缩放处理"},{"label":"C","text":"调整图像的亮度和对比度"},{"label":"D","text":"将图像转换为只有黑色和白色两种颜色"}],"answer":["D"],"category":"竞赛综合","tags":["综合"],"explanation":"二值化是把灰度图按阈值分成前景和背景，典型结果是 0 与 255 两类像素；中值滤波属于去噪，不是二值化类型。 正确选项是 D. 将图像转换为只有黑色和白色两种颜色。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":60,"stem":"下图展示的是（ ）图像处理方式。","options":[{"label":"A","text":"二值化"},{"label":"B","text":"几何变换"},{"label":"C","text":"灰度变换"},{"label":"D","text":"图像增强"}],"answer":["C"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 C. 灰度变换。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":61,"stem":"一幅灰度级均匀分布的图像，其灰度范围在[0,255]，则该图像像素的存储位数为____？","options":[{"label":"A","text":"2"},{"label":"B","text":"4"},{"label":"C","text":"8"},{"label":"D","text":"16"}],"answer":["C"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 C. 8。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":62,"stem":"机器视觉系统一般由哪几部分组成？","options":[{"label":"A","text":"相机、镜头、软件"},{"label":"B","text":"光源、相机、光源控制器"},{"label":"C","text":"光源、相机、镜头、光源控制器、软件"},{"label":"D","text":"光源、相机、镜头、光源控制器"}],"answer":["C"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 C. 光源、相机、镜头、光源控制器、软件。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":63,"stem":"下列说法错误的是（ ）","options":[{"label":"A","text":"User:表示用户坐标系"},{"label":"B","text":"Tool:表示工具坐标系"},{"label":"C","text":"SpeedS:运动加速度比例"},{"label":"D","text":"CP:运动时设置平滑过渡"}],"answer":["C"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 C. SpeedS:运动加速度比例。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":64,"stem":"Magician E6机器人脚本编程中，下列哪个指令会报错（ ）。","options":[{"label":"A","text":"SYNC()"},{"label":"B","text":"Sleep()"},{"label":"C","text":"DI"},{"label":"D","text":"IF"}],"answer":["B"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 B. Sleep()。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":65,"stem":"local currentPose = GetPose()在程序中代表着（ ）","options":[{"label":"A","text":"建立一个布尔变量"},{"label":"B","text":"获取当前坐标系下的位姿赋值给左边变量"},{"label":"C","text":"判断两边是否相等"},{"label":"D","text":"运动到currentPose"}],"answer":["B"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 B. 获取当前坐标系下的位姿赋值给左边变量。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":66,"stem":"MovL指令在程序中代表着的运动方式是（ ）","options":[{"label":"A","text":"以点到点方式运动至目标点"},{"label":"B","text":"直线运动到目标点"},{"label":"C","text":"以半圆轨迹运动到目标点"},{"label":"D","text":"以平滑过渡姿态运行到目标点"}],"answer":["B"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 B. 直线运动到目标点。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":67,"stem":"输入/输出指令DO(1,ON)是什么意思（ ）","options":[{"label":"A","text":"将数字输入端口1设置为高电平"},{"label":"B","text":"将数组输入端口1设置为低电平"},{"label":"C","text":"将数字输出端口1设置为低电平"},{"label":"D","text":"将数字输出端口1设置为高电平"}],"answer":["D"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 D. 将数字输出端口1设置为高电平。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":68,"stem":"机械臂支持两种类型的输出指令，分别是立即指令和（ ）","options":[{"label":"A","text":"等待指令"},{"label":"B","text":"列队指令"},{"label":"C","text":"其他指令"},{"label":"D","text":"IO指令"}],"answer":["B"],"category":"机器人与标定","tags":["综合"],"explanation":"机器人题通常考查 TCP、坐标系、运动学、精度和点位姿态；视觉引导前需要保证机器人和相机坐标关系正确。 正确选项是 B. 列队指令。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":69,"stem":"下列属于定义全局变量的是（ ）","options":[{"label":"A","text":"flag == 0"},{"label":"B","text":"flag = 0"},{"label":"C","text":"local flag = 0"},{"label":"D","text":"flag != 0"}],"answer":["B"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 B. flag = 0。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":70,"stem":"程序管理指令中Wait是什么意思（ ）","options":[{"label":"A","text":"通用脚本暂停时间"},{"label":"B","text":"程序运行暂停"},{"label":"C","text":"运动暂停时间"},{"label":"D","text":"程序运行停止"}],"answer":["C"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 C. 运动暂停时间。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":71,"stem":"一般关键字“break”是什么（ ）","options":[{"label":"A","text":"跳出程序"},{"label":"B","text":"程序暂停"},{"label":"C","text":"跳出循环"},{"label":"D","text":"程序停止"}],"answer":["C"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 C. 跳出循环。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":72,"stem":"机械臂脚本编程中，什么时候区分大小写（ ）。","options":[{"label":"A","text":"不区分"},{"label":"B","text":"运动指令区分"},{"label":"C","text":"逻辑指令区分"},{"label":"D","text":"全部区分"}],"answer":["D"],"category":"机器人与标定","tags":["综合"],"explanation":"机器人题通常考查 TCP、坐标系、运动学、精度和点位姿态；视觉引导前需要保证机器人和相机坐标关系正确。 正确选项是 D. 全部区分。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":73,"stem":"创建TCP网络指令参数中的TRUE表示（ ）","options":[{"label":"A","text":"创建服务器"},{"label":"B","text":"创建客户端"},{"label":"C","text":"是否创建服务器"},{"label":"D","text":"是否创建客户端"}],"answer":["A"],"category":"编程与通信","tags":["综合"],"explanation":"TCP 在机器人应用中通常表示工具中心点或网络通信语境下的连接；题目要结合指令返回值和上下文判断。 正确选项是 A. 创建服务器。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":74,"stem":"Magician E6机械臂的最大荷重为（）g","options":[{"label":"A","text":"250"},{"label":"B","text":"500"},{"label":"C","text":"750"},{"label":"D","text":"950"}],"answer":["C"],"category":"机器人与标定","tags":["综合"],"explanation":"机器人题通常考查 TCP、坐标系、运动学、精度和点位姿态；视觉引导前需要保证机器人和相机坐标关系正确。 正确选项是 C. 750。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":75,"stem":"CP是指机器人经过示教的位置时的接近程度, 设定了合适的位置等级时，可使机器人运行出与周围状况和工件相适应的轨迹，其中位置等级（ ）。","options":[{"label":"A","text":"CP 值越小, 运行轨迹越精准"},{"label":"B","text":"CP 值大小, 与运行轨迹关系不大"},{"label":"C","text":"CP值越大, 运行轨迹越精准"},{"label":"D","text":"只与运动速度有关"}],"answer":["A"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 正确选项是 A. CP 值越小, 运行轨迹越精准。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":76,"stem":"下列（ ）方法能够以列表的形式返回一个目录。","options":[{"label":"A","text":"os.listdir(dir_path)"},{"label":"B","text":"os.path.isdir(path)"},{"label":"C","text":"os.path.basename(path)"},{"label":"D","text":"os.mkdir(dir_path)"}],"answer":["A"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 A. os.listdir(dir_path)。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":77,"stem":"以下关于模块说法错误的是（ ）。","options":[{"label":"A","text":"一个xx.py就是一个模块"},{"label":"B","text":"任何一个普通的xx.py文件可以作为模块导入"},{"label":"C","text":"模块文件的扩展名不一定是.py"},{"label":"D","text":"运行时会从制定的目录搜索导入的模块，如果没有，会报错异常"}],"answer":["C"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 C. 模块文件的扩展名不一定是.py。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":78,"stem":"在Dobot Vision Studio中完成标定后，可通过_______模块，实现相机坐标系和机械臂世界坐标系之间的转换。","options":[{"label":"A","text":"标定转换"},{"label":"B","text":"单位转换"},{"label":"C","text":"变量计算"},{"label":"D","text":"N点标定"}],"answer":["A"],"category":"机器人与标定","tags":["综合"],"explanation":"相机相关题通常围绕分辨率、曝光、帧率、像素格式和采集方式；参数选择要服务于测量精度和成像质量。 正确选项是 A. 标定转换。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":79,"stem":"Dobot Vision Studio中，当使用标定工具失败时，需要调节参数，常用调试步骤是_______。 ①检查输入图像是否为标定板图像。 ②检查基本参数中标定板类型是否设定正确。 ③检查参数设置是否合理。对于棋盘格标定，检查灰度对比度是否较高，将亚像素窗口由自适应改为设置值，并将窗口大小设置为棋盘格格子像素宽度/10左右。 ④对于圆点阵标定板，检查圆点类型是否设置正确，点圆度阈值是否过高，边缘提取阈值是否不合理。","options":[{"label":"A","text":"①②③④"},{"label":"B","text":"①②③"},{"label":"C","text":"②③④"},{"label":"D","text":"①②④"}],"answer":["A"],"category":"机器人与标定","tags":["综合"],"explanation":"圆查找、圆拟合和圆测量通常依赖边缘点提取，再根据边缘点拟合圆心、半径、直径或周长等参数。 正确选项是 A. ①②③④。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":80,"stem":"_______是取值只有0和1的图像，“0”代表着黑色，“1”代表着白色，反应在图像上就是各个像素点不是黑就是白。","options":[{"label":"A","text":"二值图像"},{"label":"B","text":"灰度图像"},{"label":"C","text":"RGB图像"},{"label":"D","text":"索引图像"}],"answer":["A"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 A. 二值图像。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":81,"stem":"下图展示的是哪种图像变换？","options":[{"label":"A","text":"图像平移"},{"label":"B","text":"图像旋转"},{"label":"C","text":"图像投影"},{"label":"D","text":"图像缩放"}],"answer":["D"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 D. 图像缩放。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":82,"stem":"镜头焦距大小的影响，下列说法不正确的是_______。","options":[{"label":"A","text":"焦距越小，景深越大"},{"label":"B","text":"焦距越小，景深越小"},{"label":"C","text":"焦距越小，畸变越大"},{"label":"D","text":"焦距越小，渐晕现象越严重，使像差边缘的照度降低"}],"answer":["B"],"category":"竞赛综合","tags":["综合"],"explanation":"镜头焦距、光圈、景深、视场角和畸变互相关联；焦距越短通常视场角越大、畸变更明显。 正确选项是 B. 焦距越小，景深越小。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":83,"stem":"关于镜头光圈，下列说法不正确的是_______。","options":[{"label":"A","text":"光圈在较小的情况下，图片亮度相对较暗，工件和背景的对比度相对较低"},{"label":"B","text":"光圈在居中的情况下，图片亮度相对一般，工件和背景的对比度一般"},{"label":"C","text":"光圈在较大的情况下，图片亮度相对较亮，工件和背景的对比度相对较高"},{"label":"D","text":"光圈在居中的情况下，图片亮度相对一般，工件和背景的对比度较高"}],"answer":["D"],"category":"竞赛综合","tags":["综合"],"explanation":"镜头焦距、光圈、景深、视场角和畸变互相关联；焦距越短通常视场角越大、畸变更明显。 正确选项是 D. 光圈在居中的情况下，图片亮度相对一般，工件和背景的对比度较高。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":84,"stem":"芯片（如图所示）焊点检测，焊点为银色金属，背景为黄色，应选择_______光源。","options":[{"label":"A","text":"白色"},{"label":"B","text":"黄色"},{"label":"C","text":"红色"},{"label":"D","text":"蓝色"}],"answer":["D"],"category":"竞赛综合","tags":["综合"],"explanation":"工业视觉选光源要看材质、表面反光、缺陷类型和检测目的；焊点等金属反光目标常借助专用多色或结构化照明突出形貌。 正确选项是 D. 蓝色。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":85,"stem":"如图所示，百事可乐瓶盖的整体颜色为蓝色，现要检测瓶盖上面的字符，应该选择_______颜色过来背景最好。","options":[{"label":"A","text":"红色"},{"label":"B","text":"绿色"},{"label":"C","text":"白色"},{"label":"D","text":"蓝色"}],"answer":["D"],"category":"竞赛综合","tags":["综合"],"explanation":"字符识别通常包含图像采集、预处理、ROI 分割、字符训练/模板学习和识别输出，训练与识别阶段参数应保持一致。 正确选项是 D. 蓝色。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":86,"stem":"产品尺寸为，重复测量精度为0.1 mm/pixel，相机的分辨率应该选多少？","options":[{"label":"A","text":"200万：1600×1200"},{"label":"B","text":"500万：2592×1944"},{"label":"C","text":"1000万：3840×2748"},{"label":"D","text":"130万：1280×1024"}],"answer":["A"],"category":"竞赛综合","tags":["综合"],"explanation":"相机相关题通常围绕分辨率、曝光、帧率、像素格式和采集方式；参数选择要服务于测量精度和成像质量。 正确选项是 A. 200万：1600×1200。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":87,"stem":"Dobot Vision Studio 的操作系统最低配置是（ ）。","options":[{"label":"A","text":"Windows XP"},{"label":"B","text":"Windows 7"},{"label":"C","text":"Windows 10"},{"label":"D","text":"Windows 8"}],"answer":["B"],"category":"机器人与标定","tags":["进阶"],"explanation":"Dobot Vision Studio 的操作系统最低配置是Windows 7。","type":"single"},{"id":88,"stem":"( )适用于光照均匀性较差，或者存在多个带提取目标物，灰度范围较大的场景。","options":[{"label":"A","text":"硬阈值二值化"},{"label":"B","text":"高斯二值化"},{"label":"C","text":"均值二值化"},{"label":"D","text":"自动二值化"}],"answer":["C"],"category":"机器视觉基础","tags":["进阶"],"explanation":"均值二值化适用于光照均匀性较差，或者存在多个带提取目标物，灰度范围较大的场景。","type":"single"},{"id":89,"stem":"DobotVisionStudio中，标定板标定基本参数中的物理尺寸的单位是（ ）。","options":[{"label":"A","text":"m"},{"label":"B","text":"cm"},{"label":"C","text":"mm"},{"label":"D","text":"km"}],"answer":["C"],"category":"机器人与标定","tags":["进阶"],"explanation":"DobotVisionStudio中，标定板标定基本参数中的物理尺寸的单位是mm。","type":"single"},{"id":90,"stem":"DobotVisionStudio中，标定板标定属于（ ）。","options":[{"label":"A","text":"传统相机标定法"},{"label":"B","text":"主动视觉相机标定方法"},{"label":"C","text":"相机自标定法"},{"label":"D","text":"非传统相机标定法"}],"answer":["A"],"category":"机器人与标定","tags":["挑战"],"explanation":"传统相机标定法使用尺寸已知的标定物（标定板），通过建立标定物上坐标已知的点与其图像点之间的对应，利用一定的算法获得相机模型的内外参数。传统相机标定法在标定过程中始终需要标定物，算法复杂，但标定精度高。","type":"single"},{"id":91,"stem":"镜头成像主要利用了光学的（ ） 原理。","options":[{"label":"A","text":"反射"},{"label":"B","text":"折射"},{"label":"C","text":"衍射"},{"label":"D","text":"散射"}],"answer":["B"],"category":"成像与光学","tags":["基础"],"explanation":"镜头成像主要利用了光学的折射 原理。","type":"single"},{"id":92,"stem":"透明膜反光，无法提取轮廓，可以增加什么配件来改善？（ ）","options":[{"label":"A","text":"偏振片和偏振镜"},{"label":"B","text":"漫射板"},{"label":"C","text":"滤镜"},{"label":"D","text":"背光光源"}],"answer":["A"],"category":"机器视觉基础","tags":["进阶"],"explanation":"偏振片与偏振镜配合使用，偏振片加载在光源前端，通过改变偏振光的方向，以此来减少甚至消除部分反光。 透明膜反光，无法提取轮廓，可以增加偏振片和偏振镜来改善。","type":"single"},{"id":93,"stem":"反光极强的易拉罐底部字符检测，应选择（ ） 。","options":[{"label":"A","text":"背光源"},{"label":"B","text":"同轴光源"},{"label":"C","text":"条形光源"},{"label":"D","text":"球积分光源"}],"answer":["C"],"category":"机器视觉基础","tags":["基础"],"explanation":"条形光源可以避免正面照射产生的强烈反光。","type":"single"},{"id":94,"stem":"Dobot Vision Studio算法平台不能满足（ ）应用需求。","options":[{"label":"A","text":"测量工件尺寸"},{"label":"B","text":"定位工件位置"},{"label":"C","text":"检测工件缺陷"},{"label":"D","text":"改变工件形状"}],"answer":["D"],"category":"机器人与标定","tags":["基础"],"explanation":"Dobot Vision Studio算法平台不能满足改变工件形状应用需求。","type":"single"},{"id":95,"stem":"迭代次数是重复形态学处理操作的次数，次数（ ）处理效果会（ ）。","options":[{"label":"A","text":"越小，越明显"},{"label":"B","text":"越大，越明显"},{"label":"C","text":"越大，越模糊"},{"label":"D","text":"越小，越模糊"}],"answer":["B"],"category":"机器视觉基础","tags":["基础"],"explanation":"迭代次数是重复形态学处理操作的次数，次数越大处理效果会越明显。","type":"single"},{"id":96,"stem":"以下操作不属于图像位置变换的是（ ）。","options":[{"label":"A","text":"平移"},{"label":"B","text":"镜像"},{"label":"C","text":"缩小"},{"label":"D","text":"旋转"}],"answer":["C"],"category":"图像处理基础","tags":["基础"],"explanation":"平移、镜像、旋转都属于图像的位置变换，缩小属于图像的形状变换。","type":"single"},{"id":97,"stem":"以下操作不属于图像的形状变换的是（ ）","options":[{"label":"A","text":"缩小"},{"label":"B","text":"错切"},{"label":"C","text":"放大"},{"label":"D","text":"投值"}],"answer":["D"],"category":"图像处理基础","tags":["基础"],"explanation":"投值是属于图像的符合变换的操作。缩小、放大、错切都属于图像的型转变换。","type":"single"},{"id":98,"stem":"DobotVisionStudio中，仿射变换（ ）的作用是旋转矩形超出图像边界部分的设置方式。","options":[{"label":"A","text":"尺度"},{"label":"B","text":"宽高比"},{"label":"C","text":"插值方法"},{"label":"D","text":"填充方式"}],"answer":["D"],"category":"机器人与标定","tags":["基础"],"explanation":"填充方式的作用是旋转矩形超出图像边界部分的设置方式。","type":"single"},{"id":99,"stem":"DobotVisionStudio中，点线测量中直线可以是通过（ ）等来获取。","options":[{"label":"A","text":"边缘查找"},{"label":"B","text":"直线查找"},{"label":"C","text":"卡尺工具"},{"label":"D","text":"直线拟合"}],"answer":["A"],"category":"机器人与标定","tags":["进阶"],"explanation":"DobotVisionStudio中，点线测量中直线可以是通过直线查找等来获取。","type":"single"},{"id":100,"stem":"中国最常用是（）条形码。","options":[{"label":"A","text":"EAN条形码"},{"label":"B","text":"UPC条形码"},{"label":"C","text":"二五条形码"},{"label":"D","text":"128条形码"}],"answer":["A"],"category":"识别与检测","tags":["进阶"],"explanation":"中国最常用是EAN条形码。","type":"single"},{"id":101,"stem":"EAN-13条形码是一种（7，2）码，包含了13位数据字符，其中第4~8位为（）","options":[{"label":"A","text":"国家代码"},{"label":"B","text":"制造商代码"},{"label":"C","text":"商品代码"},{"label":"D","text":"校验码"}],"answer":["B"],"category":"识别与检测","tags":["进阶"],"explanation":"EAN-13条形码是一种（7，2）码，包含了13位数据字符，其中第1~3位为国家代码，中国的代码为690~695。第4~8位为制造商代码。第9~12位为商品代码。第14位为校验码，用来保证条形码识别的正确性。","type":"single"},{"id":102,"stem":"机器视觉定位分拣工作应该包含（）个流程。","options":[{"label":"A","text":"7"},{"label":"B","text":"8"},{"label":"C","text":"9"},{"label":"D","text":"10"}],"answer":["A"],"category":"机器视觉基础","tags":["基础"],"explanation":"机器视觉定位分拣工作应该包含图像采集、图像处理、图像分析、识别定位、手眼标定、手眼标定坐标关系转换、工件分类抓取7个流程。","type":"single"},{"id":103,"stem":"（ ）包括工业相机，镜头，光源，相机将捕获到的工件实时影像传输给工控机进行处理。","options":[{"label":"A","text":"传送带单元"},{"label":"B","text":"视觉识别单元"},{"label":"C","text":"信息处理单元"},{"label":"D","text":"机器人装配单元"}],"answer":["B"],"category":"成像与光学","tags":["基础"],"explanation":"视觉识别单元包括工业相机，镜头，光源，相机将捕获到的工件实时影像传输给工控机进行处理。","type":"single"},{"id":104,"stem":"PCB板UV胶体检测应选择（ ）光源。","options":[{"label":"A","text":"漫射光源"},{"label":"B","text":"红外光源"},{"label":"C","text":"紫外光源"},{"label":"D","text":"背光源"}],"answer":["C"],"category":"成像与光学","tags":["基础"],"explanation":"紫外光源，适用于特定的类似于防伪码检测等应用配套。PCB板UV胶体检测应选择紫外光源，故选C","type":"single"},{"id":105,"stem":"下列颜色叠加之后在黑白相机下呈现深色？ （ ）","options":[{"label":"A","text":"红色+红色"},{"label":"B","text":"绿色+红色"},{"label":"C","text":"蓝色+蓝色"},{"label":"D","text":"蓝色+绿色"}],"answer":["B"],"category":"竞赛综合","tags":["进阶"],"explanation":"绿色+红色在黑白相机下呈现深色。","type":"single"},{"id":106,"stem":"相机采集到的图形对比不清晰时，可以使用（ ）将图像的前景和背景分离。","options":[{"label":"A","text":"图形滤波"},{"label":"B","text":"图像增强"},{"label":"C","text":"颜色转换"},{"label":"D","text":"图像二值化"}],"answer":["D"],"category":"竞赛综合","tags":["进阶"],"explanation":"相机采集到的图形对比不清晰时，可以使用图像二值化将图像的前景和背景分离。","type":"single"},{"id":107,"stem":"在工业应用中，可以使用（ ）消除工业现场环境复杂、光照不均等因素引起的噪声","options":[{"label":"A","text":"图形滤波"},{"label":"B","text":"图像增强"},{"label":"C","text":"颜色转换"},{"label":"D","text":"图像二值化"}],"answer":["A"],"category":"竞赛综合","tags":["进阶"],"explanation":"在工业应用中，可以使用图像滤波消除工业现场环境复杂、光照不均等因素引起的噪声","type":"single"},{"id":108,"stem":"（）是为了得到二维图像坐标系和空间三维坐标系之间的转换关系。","options":[{"label":"A","text":"机器人工具坐标系统标定"},{"label":"B","text":"手眼标定"},{"label":"C","text":"传送带标定"},{"label":"D","text":"相机标定"}],"answer":["D"],"category":"竞赛综合","tags":["基础"],"explanation":"相机标定是为了得到二维图像坐标系和空间三维坐标系之间的转换关系。","type":"single"},{"id":109,"stem":"系统检测精度要求高，应该选择（ ）镜头。","options":[{"label":"A","text":"定焦镜头"},{"label":"B","text":"远心镜头"},{"label":"C","text":"变焦镜头"},{"label":"D","text":"显微镜头"}],"answer":["B"],"category":"竞赛综合","tags":["基础"],"explanation":"系统检测精度要求高，应该选择远心镜头。","type":"single"},{"id":110,"stem":"锯齿缺陷检测优先选择（ ）光源。","options":[{"label":"A","text":"条形光源"},{"label":"B","text":"环形光源"},{"label":"C","text":"同轴光源"},{"label":"D","text":"背光源"}],"answer":["D"],"category":"竞赛综合","tags":["基础"],"explanation":"背光源本身均匀性高，同时厚度比较薄，适用于安装紧凑的位置，可以完美呈现被检测对象的轮廓缺陷等。 锯齿缺陷检测优先选择背光源，故选D","type":"single"},{"id":111,"stem":"口服液杂质检测应选择（ ）光源。","options":[{"label":"A","text":"漫射光源"},{"label":"B","text":"红外光源"},{"label":"C","text":"紫外光源"},{"label":"D","text":"背光源"}],"answer":["B"],"category":"竞赛综合","tags":["基础"],"explanation":"红外光可过滤产品表面有机涂料干扰，检测表面划痕。比如深色口服液检测内部杂质。故选B","type":"single"},{"id":112,"stem":"用（ ）照射，照射绿色对象的光被反射，照射红色、蓝色对象的光被吸收。","options":[{"label":"A","text":"白光"},{"label":"B","text":"红光"},{"label":"C","text":"蓝光"},{"label":"D","text":"绿光"}],"answer":["D"],"category":"竞赛综合","tags":["基础"],"explanation":"用绿光照射，照射绿色对象的光被反射，照射红色、蓝色对象的光被吸收。","type":"single"},{"id":113,"stem":"（ ）是影响机器视觉系统输入的重要因素，它直接影响输入数据的质量和应用效果。主要目的是使重要特征和非必要特征产生最大的对比度，即将目标的重要特征显现出来，而同时将不需要的特征抑制掉，最终形成对处理过程最佳的图像效果。","options":[{"label":"A","text":"光源"},{"label":"B","text":"镜头"},{"label":"C","text":"相机"},{"label":"D","text":"图像处理系统"}],"answer":["A"],"category":"竞赛综合","tags":["基础"],"explanation":"光源是影响机器视觉系统输入的重要因素，它直接影响输入数据的质量和应用效果。主要目的是使重要特征和非必要特征产生最大的对比度，即将目标的重要特征显现出来，而同时将不需要的特征抑制掉，最终形成对处理过程最佳的图像效果","type":"single"},{"id":114,"stem":"（）属于图像采集单元，将光学图像转化为模拟/数字图像，再将相应的信号传输给图像采集卡。","options":[{"label":"A","text":"光源"},{"label":"B","text":"镜头"},{"label":"C","text":"相机"},{"label":"D","text":"图像处理系统"}],"answer":["C"],"category":"竞赛综合","tags":["基础"],"explanation":"相机属于图像采集单元，将光学图像转化为模拟/数字图像，再将相应的信号传输给图像采集卡。","type":"single"},{"id":115,"stem":"产品尺寸为120mm×100mm的产品，视野应该估算为多大？（ ）","options":[{"label":"A","text":"120mm×100mm"},{"label":"B","text":"略大于120mm×100mm"},{"label":"C","text":"略小于120mm×100mm"},{"label":"D","text":"120mm×120mm"}],"answer":["B"],"category":"竞赛综合","tags":["基础"],"explanation":"产品尺寸为120mm×100mm的产品，视野应该略大于120mm×100mm","type":"single"},{"id":116,"stem":"Dobot Vision Studio算法平台具有（ ）特点。","options":[{"label":"A","text":"功能丰富"},{"label":"B","text":"性能稳定"},{"label":"C","text":"用户操作界面友好"},{"label":"D","text":"以上都是"}],"answer":["D"],"category":"机器人与标定","tags":["基础"],"explanation":"Dobot Vision Studio算法平台具有具有功能丰富、性能稳定、用户操作界面友好的特点。","type":"single"},{"id":117,"stem":"D435 属于哪一种设备","options":[{"label":"A","text":"激光雷达"},{"label":"B","text":"深度相机"},{"label":"C","text":"热成像仪"},{"label":"D","text":"单反相机"}],"answer":["B"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 正确选项是 B. 深度相机。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":118,"stem":"哪个 CP 可获得最圆滑路径（ ）","options":[{"label":"A","text":"CP=0"},{"label":"B","text":"CP=1"},{"label":"C","text":"CP=50"},{"label":"D","text":"CP=100"}],"answer":["D"],"category":"竞赛综合","tags":["综合"],"explanation":"圆查找、圆拟合和圆测量通常依赖边缘点提取，再根据边缘点拟合圆心、半径、直径或周长等参数。 正确选项是 D. CP=100。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":119,"stem":"机器人创建 TCP 网络通讯必要操作是（ ）","options":[{"label":"A","text":"与连接设备保持同网段，同端口号"},{"label":"B","text":"使用交换机"},{"label":"C","text":"设置连接密码"},{"label":"D","text":"更改机器人 IP 地址"}],"answer":["A"],"category":"编程与通信","tags":["综合"],"explanation":"TCP 在机器人应用中通常表示工具中心点或网络通信语境下的连接；题目要结合指令返回值和上下文判断。 正确选项是 A. 与连接设备保持同网段，同端口号。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":120,"stem":"选用2/3\"相机，拍摄物体尺寸为90mm x 60mm，镜头到拍摄物体间距离为400mm，应该选择( )焦距的镜头。","options":[{"label":"A","text":"12mm"},{"label":"B","text":"16mm"},{"label":"C","text":"35mm"},{"label":"D","text":"25mm"}],"answer":["C"],"category":"竞赛综合","tags":["综合"],"explanation":"相机相关题通常围绕分辨率、曝光、帧率、像素格式和采集方式；参数选择要服务于测量精度和成像质量。 正确选项是 C. 35mm。其他选项与题干考点不完全匹配，容易混淆时可优先回到该工具、参数或概念的核心作用来排除。","type":"single"},{"id":121,"stem":"Dobot Vision Studio中，当使用标定工具失败时，需要调节参数，常用调试步骤是（ ）。","options":[{"label":"A","text":"检查输入图像是否为标定板图像"},{"label":"B","text":"检查基本参数中标定板类型是否设定正确"},{"label":"C","text":"检查参数设置是否合理。对于棋盘格标定，检查灰度对比度是否较高，将亚像素窗口由自适应改为设置值，并将窗口大小设置为棋盘格格子像素宽度/10左右"},{"label":"D","text":"对于圆点阵标定板，检查圆点类型是否设置正确，点圆度阈值是否过高，边缘提取阈值是否不合理"}],"answer":["A","B","C","D"],"category":"机器人与标定","tags":["综合"],"explanation":"标定用于建立像素坐标、相机坐标、世界坐标或机器人坐标之间的映射，是视觉测量和视觉引导的基础。 本题为多选题，正确选项是 A. 检查输入图像是否为标定板图像；B. 检查基本参数中标定板类型是否设定正确；C. 检查参数设置是否合理。对于棋盘格标定，检查灰度对比度是否较高，将亚像素窗口由自适应改为设置值，并将窗口大小设置为棋盘格格子像素宽度/10左右；D. 对于圆点阵标定板，检查圆点类型是否设置正确，点圆度阈值是否过高，边缘提取阈值是否不合理。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":122,"stem":"以下是正确的字符串有（ ）。","options":[{"label":"A","text":"‘abc”ab”"},{"label":"B","text":"‘abc”ab’"},{"label":"C","text":"“abc”ab”"},{"label":"D","text":"“abc\\”ab”"}],"answer":["B","D"],"category":"编程与通信","tags":["综合"],"explanation":"字符识别通常包含图像采集、预处理、ROI 分割、字符训练/模板学习和识别输出，训练与识别阶段参数应保持一致。 本题为多选题，正确选项是 B. ‘abc”ab’；D. “abc\\”ab”。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":123,"stem":"特征提取是图像分析最为关键的内容，可提取的图像特征有（ ）。","options":[{"label":"A","text":"形状特征"},{"label":"B","text":"纹理特征"},{"label":"C","text":"颜色特征"},{"label":"D","text":"边缘特征"}],"answer":["A","B","C"],"category":"图像处理基础","tags":["综合"],"explanation":"本题考查图像预处理、分割、测量或检测的基础概念，关键是区分各算法的用途和输出结果。 本题为多选题，正确选项是 A. 形状特征；B. 纹理特征；C. 颜色特征。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":124,"stem":"模板匹配的核心是 。","options":[{"label":"A","text":"特征提取"},{"label":"B","text":"相似度测量"},{"label":"C","text":"模板查询"},{"label":"D","text":"模板特征"}],"answer":["A","B","C"],"category":"视觉软件应用","tags":["进阶"],"explanation":"模板匹配用已知模板在图像中搜索相似区域，适合固定外形、固定姿态或相似物体的定位与检索。 本题为多选题，正确选项是 A. 特征提取；B. 相似度测量；C. 模板查询。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":125,"stem":"通过图像分析可以识别 。","options":[{"label":"A","text":"物体的几何中心"},{"label":"B","text":"物体颜色"},{"label":"C","text":"物体形状"},{"label":"D","text":"以上都不是"}],"answer":["A","B","C"],"category":"视觉软件应用","tags":["进阶"],"explanation":"本题考查视觉软件工具的功能选择，关键是把检测目标对应到定位、测量、识别、标定或图像处理模块。 本题为多选题，正确选项是 A. 物体的几何中心；B. 物体颜色；C. 物体形状。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":126,"stem":"关于镜头光圈，下列说法正确的是（ ）。","options":[{"label":"A","text":"光圈在较小的情况下，图片亮度相对较暗，工件和背景的对比度相对较低。"},{"label":"B","text":"光圈在居中的情况下，图片亮度相对一般，工件和背景的对比度一般。"},{"label":"C","text":"光圈在较大的情况下，图片亮度相对较亮，工件和背景的对比度相对较高。"},{"label":"D","text":"光圈在居中的情况下，图片亮度相对一般，工件和背景的对比度较高。"}],"answer":["A","B","C"],"category":"竞赛综合","tags":["综合"],"explanation":"镜头焦距、光圈、景深、视场角和畸变互相关联；焦距越短通常视场角越大、畸变更明显。 本题为多选题，正确选项是 A. 光圈在较小的情况下，图片亮度相对较暗，工件和背景的对比度相对较低。；B. 光圈在居中的情况下，图片亮度相对一般，工件和背景的对比度一般。；C. 光圈在较大的情况下，图片亮度相对较亮，工件和背景的对比度相对较高。。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":127,"stem":"（ ）是模式识别领域中非常活跃的分支。","options":[{"label":"A","text":"字符识别"},{"label":"B","text":"条形码识别"},{"label":"C","text":"二维码识别"},{"label":"D","text":"日期识别"}],"answer":["A","B","C"],"category":"识别与检测","tags":["综合"],"explanation":"本题考查条码、二维码、字符或缺陷识别流程，核心是图像质量、特征提取和识别规则的匹配。 本题为多选题，正确选项是 A. 字符识别；B. 条形码识别；C. 二维码识别。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":128,"stem":"条形光源的典型应用有（ ）。","options":[{"label":"A","text":"包装文字检测"},{"label":"B","text":"纸张质量检测"},{"label":"C","text":"制造物裂纹检测机"},{"label":"D","text":"电子部件的形状识别和大小的检测"}],"answer":["A","B","C","D"],"category":"竞赛综合","tags":["综合"],"explanation":"工业视觉选光源要看材质、表面反光、缺陷类型和检测目的；焊点等金属反光目标常借助专用多色或结构化照明突出形貌。 本题为多选题，正确选项是 A. 包装文字检测；B. 纸张质量检测；C. 制造物裂纹检测机；D. 电子部件的形状识别和大小的检测。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":129,"stem":"深度学习方向的第三方库是？","options":[{"label":"A","text":"TensorFlow"},{"label":"B","text":"Keras"},{"label":"C","text":"Scikit-learn"},{"label":"D","text":"PyTorch"}],"answer":["A","B","C","D"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 本题为多选题，正确选项是 A. TensorFlow；B. Keras；C. Scikit-learn；D. PyTorch。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":130,"stem":"下列关于 python 语言的特点中，描述正确的？","options":[{"label":"A","text":"python 语言非开源"},{"label":"B","text":"python 语言是跨平台语言"},{"label":"C","text":"python 语言是多模型语言"},{"label":"D","text":"python 语言是脚本语言"}],"answer":["B","C","D"],"category":"编程与通信","tags":["综合"],"explanation":"本题考查程序表达式或通信指令的含义，需要结合语法、返回值和控制逻辑判断。 本题为多选题，正确选项是 B. python 语言是跨平台语言；C. python 语言是多模型语言；D. python 语言是脚本语言。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":131,"stem":"在Dobot Vision Studio中，那些算法工具属于图像处理的工具？","options":[{"label":"A","text":"仿射变换"},{"label":"B","text":"图像增强"},{"label":"C","text":"图像修正"},{"label":"D","text":"畸变校正"}],"answer":["A","B","C","D"],"category":"机器人与标定","tags":["综合"],"explanation":"Dobot Vision Studio 中不同工具面向定位、测量、识别、标定和逻辑处理，答题时要抓住工具名称对应的功能边界。 本题为多选题，正确选项是 A. 仿射变换；B. 图像增强；C. 图像修正；D. 畸变校正。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":132,"stem":"图像处理的目的包括是（ ）","options":[{"label":"A","text":"消除图像中无用的信息"},{"label":"B","text":"恢复真实有用的信息"},{"label":"C","text":"标识图像中亮度变化明显的点"},{"label":"D","text":"增强需要处理信息的可识别性和最大限度的简化数据"}],"answer":["A","B","D"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 本题为多选题，正确选项是 A. 消除图像中无用的信息；B. 恢复真实有用的信息；D. 增强需要处理信息的可识别性和最大限度的简化数据。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":133,"stem":"影响图像明暗度的因素有？","options":[{"label":"A","text":"视野"},{"label":"B","text":"曝光时间"},{"label":"C","text":"焦距"},{"label":"D","text":"光圈"}],"answer":["B","D"],"category":"竞赛综合","tags":["综合"],"explanation":"本题来自竞赛综合知识点，通常把机器视觉、机器人、光学和软件工具放在具体应用场景中考查。 本题为多选题，正确选项是 B. 曝光时间；D. 光圈。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":134,"stem":"如果相机采集到的图像过暗，以下解决方案可以提高图像亮度的有？","options":[{"label":"A","text":"调高光源亮度"},{"label":"B","text":"增加曝光时间"},{"label":"C","text":"调大光圈"},{"label":"D","text":"减小增益"}],"answer":["A","B","C"],"category":"竞赛综合","tags":["综合"],"explanation":"相机相关题通常围绕分辨率、曝光、帧率、像素格式和采集方式；参数选择要服务于测量精度和成像质量。 本题为多选题，正确选项是 A. 调高光源亮度；B. 增加曝光时间；C. 调大光圈。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":135,"stem":"焦距不变的情况下影响视野的因素有？","options":[{"label":"A","text":"物距"},{"label":"B","text":"像距"},{"label":"C","text":"相机芯片尺寸大小"},{"label":"D","text":"被拍物体大小"}],"answer":["A","C"],"category":"竞赛综合","tags":["综合"],"explanation":"视野估算通常要比产品实际尺寸略大，给定位误差、夹具偏差和边缘余量留空间。 本题为多选题，正确选项是 A. 物距；C. 相机芯片尺寸大小。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":136,"stem":"工业视觉系统中光源的作用有哪些？","options":[{"label":"A","text":"照亮目标，提高目标亮度。"},{"label":"B","text":"形成最有利于图像处理的成像效果。"},{"label":"C","text":"克服环境光干扰，保证图像的稳定性。"},{"label":"D","text":"用作测量的工具或参照。"}],"answer":["A","B","C","D"],"category":"竞赛综合","tags":["综合"],"explanation":"工业视觉选光源要看材质、表面反光、缺陷类型和检测目的；焊点等金属反光目标常借助专用多色或结构化照明突出形貌。 本题为多选题，正确选项是 A. 照亮目标，提高目标亮度。；B. 形成最有利于图像处理的成像效果。；C. 克服环境光干扰，保证图像的稳定性。；D. 用作测量的工具或参照。。多选题要逐项核对概念边界，只有与题干要求同时匹配的选项才应选入。","type":"multiple"},{"id":137,"stem":"下列选项属于字符识别应用有（ ）。","options":[{"label":"A","text":"证件识别"},{"label":"B","text":"车牌识别"},{"label":"C","text":"票据识别"},{"label":"D","text":"文档文字识别"}],"answer":["A","B","C","D"],"category":"识别与检测","tags":["进阶"],"explanation":"字符识别应用有证件识别、银行卡识别、车牌识别、名片识别、营业执照识别、汽车VIN码识别、票据识别、文档文字识别等","type":"multiple"},{"id":138,"stem":"DobotVisionStudio中，点点测量的关键是要找到两个点的位置，点的位置可以是通过（ ）等来获取。","options":[{"label":"A","text":"圆查找"},{"label":"B","text":"边缘交点"},{"label":"C","text":"直线查找"},{"label":"D","text":"顶点查找"}],"answer":["A","B","C","D"],"category":"机器人与标定","tags":["挑战"],"explanation":"点点测量的关键是要找到两个点的位置，点的位置可以是通过边缘交点、圆查找、直线查找等来获取。","type":"multiple"},{"id":139,"stem":"镜头光圈大小的影响情况，下列说法正确的是（ ）","options":[{"label":"A","text":"光圈越大，图像亮度越高"},{"label":"B","text":"光圈越大，景深越小"},{"label":"C","text":"光圈越小，景深越小"},{"label":"D","text":"光圈越大，分辨率越高"}],"answer":["A","B","D"],"category":"成像与光学","tags":["基础"],"explanation":"镜头光圈大小的影响情况，下列说法不正确的是光圈越大，景深越小 。","type":"multiple"},{"id":140,"stem":"DobotVisionStudio中颜色转换的类型有（ ）。","options":[{"label":"A","text":"RGB转灰度"},{"label":"B","text":"RGB转HSV"},{"label":"C","text":"RGB转HIS"},{"label":"D","text":"RGB转YUV"}],"answer":["A","B","C","D"],"category":"机器人与标定","tags":["基础"],"explanation":"颜色转换的类型有RGB转灰度、RGB转HSV、RGB转HIS、RGB转YUV等。","type":"multiple"},{"id":141,"stem":"在DobotVisionStudio中，Blob分析主要适用于（）。","options":[{"label":"A","text":"二维目标图像"},{"label":"B","text":"高对比度图像"},{"label":"C","text":"存在/缺席检测"},{"label":"D","text":"数值范围和旋转不变性需求"}],"answer":["A","B","C","D"],"category":"机器人与标定","tags":["基础"],"explanation":"Blob分析主要适用于二维目标图像、高对比度图像、存在/缺席检测、数值范围和旋转不变性需求。","type":"multiple"},{"id":142,"stem":"DobotVisionStudio中，点线测量中点的位置可以是通过（ ）等来获取。","options":[{"label":"A","text":"圆查找"},{"label":"B","text":"边缘交点"},{"label":"C","text":"直线查找"},{"label":"D","text":"顶点查找"}],"answer":["A","B","C","D"],"category":"机器人与标定","tags":["挑战"],"explanation":"点的位置可以是通过边缘交点、圆查找、直线查找等来获取。","type":"multiple"},{"id":143,"stem":"条形码识别的应用有（ ）。","options":[{"label":"A","text":"零售业"},{"label":"B","text":"仓储管理与物流跟踪"},{"label":"C","text":"图书馆"},{"label":"D","text":"质量跟踪管理"}],"answer":["A","B","C","D"],"category":"识别与检测","tags":["进阶"],"explanation":"条形码识别的应用有零售业、零售业、仓储管理与物流跟踪、质量跟踪管理","type":"multiple"},{"id":144,"stem":"排列式二维码主要有（ ）码制。","options":[{"label":"A","text":"Code 16K"},{"label":"B","text":"PDF 417"},{"label":"C","text":"CODE49"},{"label":"D","text":"Data Matrix"}],"answer":["A","B","C"],"category":"识别与检测","tags":["进阶"],"explanation":"排列式二维码主要有PDF 417、Code 16K码、CODE 49等码制。","type":"multiple"},{"id":145,"stem":"整个装配系统主要分为两个部分，即（）部分。","options":[{"label":"A","text":"传送带单元"},{"label":"B","text":"视觉处理部分"},{"label":"C","text":"通信单元"},{"label":"D","text":"机器人运动控制部分"}],"answer":["B","D"],"category":"机器视觉基础","tags":["基础"],"explanation":"整个装配系统主要分为两个部分，即视觉处理部分和机器人运动控制部分。","type":"multiple"},{"id":146,"stem":"视觉处理部分负责获取目标工件以及作业环境中的障碍物的位置、尺寸信息视觉处理部分负责获取目标工件以及作业环境中的（ ）信息。","options":[{"label":"A","text":"位置"},{"label":"B","text":"大小"},{"label":"C","text":"尺寸"},{"label":"D","text":"纹理"}],"answer":["A","C"],"category":"机器视觉基础","tags":["基础"],"explanation":"视觉处理部分负责获取目标工件以及作业环境中的障碍物的位置、尺寸信息视觉处理部分负责获取目标工件以及作业环境中的障碍物的位置、尺寸信息。","type":"multiple"},{"id":147,"stem":"机器人运动控制部分则实现对工业机械臂的运动控制，以及对（ ）的执行。","options":[{"label":"A","text":"抓取任务"},{"label":"B","text":"放置任务"},{"label":"C","text":"装配任务"},{"label":"D","text":"分拣任务"}],"answer":["A","B","C","D"],"category":"机器人与标定","tags":["基础"],"explanation":"机器人运动控制部分则实现对工业机械臂的运动控制，以及对抓取任务、放置任务、装配任务、分拣任务等任务的执行。","type":"multiple"},{"id":148,"stem":"常用的颜色特征提取方法有（）。","options":[{"label":"A","text":"统计法"},{"label":"B","text":"颜色直方图法"},{"label":"C","text":"颜色矩法"},{"label":"D","text":"颜色集法"}],"answer":["B","C","D"],"category":"机器视觉基础","tags":["基础"],"explanation":"常用的颜色特征提取方法有颜色直方图法、颜色矩法、颜色集法等。","type":"multiple"},{"id":149,"stem":"表面缺陷包括（ ）。","options":[{"label":"A","text":"金属表面的划痕、斑点、孔洞等"},{"label":"B","text":"纸张表面的色差、压痕"},{"label":"C","text":"玻璃等非金属表面的夹杂、破损、污点、划痕"},{"label":"D","text":"字符印刷不清晰"}],"answer":["A","B","C"],"category":"图像处理基础","tags":["进阶"],"explanation":"表面缺陷包括金属表面的划痕、斑点、孔洞；纸张表面的色差、压痕；玻璃等非金属表面的夹杂、破损、污点、划痕。","type":"multiple"},{"id":150,"stem":"影响景深的因素有（ ）。","options":[{"label":"A","text":"光圈"},{"label":"B","text":"镜头焦距"},{"label":"C","text":"拍摄距离"},{"label":"D","text":"快门"}],"answer":["A","B","C"],"category":"竞赛综合","tags":["基础"],"explanation":"影响景深的因素有光圈、镜头焦距、拍摄距离等。","type":"multiple"},{"id":151,"stem":"与运行相关的操作有（ ）","options":[{"label":"A","text":"单次执行"},{"label":"B","text":"连续执行"},{"label":"C","text":"停止执行"},{"label":"D","text":"运行界面"}],"answer":["A","B","C","D"],"category":"竞赛综合","tags":["基础"],"explanation":"与运行相关的操作有单次执行、连续执行、停止执行、运行界面。","type":"multiple"},{"id":152,"stem":"以下哪项属于Dobot Vision Studio 的系统子菜单栏？（ ）","options":[{"label":"A","text":"账户"},{"label":"B","text":"日志"},{"label":"C","text":"通信管理"},{"label":"D","text":"软件关闭设置"}],"answer":["B","C","D"],"category":"机器人与标定","tags":["基础"],"explanation":"账户不属于Dobot Vision Studio 的系统操作，日志、通信管理、软件关闭设置都属于Dobot Vision Studio 的系统操作。","type":"multiple"},{"id":153,"stem":"以下哪项参数是形态学处理需要修改的？（ ）","options":[{"label":"A","text":"迭代次数"},{"label":"B","text":"宽度"},{"label":"C","text":"核高/宽度"},{"label":"D","text":"高度"}],"answer":["A","C"],"category":"竞赛综合","tags":["基础"],"explanation":"迭代次数、核高/宽度参数是形态学处理需要修改的","type":"multiple"},{"id":154,"stem":"字符缺陷包括（ ）。","options":[{"label":"A","text":"字符印刷不清晰"},{"label":"B","text":"字符相对位置不合格"},{"label":"C","text":"字符漏印"},{"label":"D","text":"污点"}],"answer":["A","B","C","D"],"category":"竞赛综合","tags":["进阶"],"explanation":"字符缺陷主要包括字符印刷不清晰，字符相对位置不合格，字符漏印、污点等。","type":"multiple"},{"id":155,"stem":"纹理特征提取算法目前主要有（）四大类算法。","options":[{"label":"A","text":"统计法"},{"label":"B","text":"模型法"},{"label":"C","text":"结构法"},{"label":"D","text":"频谱法"}],"answer":["A","B","C","D"],"category":"竞赛综合","tags":["基础"],"explanation":"纹理特征提取算法目前主要分为统计法、模型法、结构法和频谱法四大类算法。","type":"multiple"},{"id":156,"stem":"点线测量能够测量（ ）。","options":[{"label":"A","text":"垂足的坐标"},{"label":"B","text":"垂直距离"},{"label":"C","text":"最远距离"},{"label":"D","text":"最近距离"}],"answer":["A","B","C","D"],"category":"竞赛综合","tags":["综合"],"explanation":"点线测量能够测量垂直距离、最远距离、最远距离、垂足的坐标等。","type":"multiple"},{"id":157,"stem":"镜头焦距大小的影响，下列说法正确的是（ ）。","options":[{"label":"A","text":"焦距越小，景深越大"},{"label":"B","text":"焦距越小，景深越小"},{"label":"C","text":"焦距越小，畸变越大"},{"label":"D","text":"焦距越小，渐晕现象越严重，使像差边缘的照度降低"}],"answer":["A","C","D"],"category":"竞赛综合","tags":["基础"],"explanation":"焦距越小，景深越大。","type":"multiple"},{"id":158,"stem":"以下（ ）哪项属于Dobot Vision Studio软件的界面组成。","options":[{"label":"A","text":"菜单栏"},{"label":"B","text":"流程编辑区域"},{"label":"C","text":"工具箱"},{"label":"D","text":"脚本编辑区"}],"answer":["A","B","C"],"category":"机器人与标定","tags":["基础"],"explanation":"脚本编辑区不属于Dobot Vision Studio软件的界面组成，菜单栏、流程编辑区域、工具箱都属于Dobot Vision Studio软件的界面组成。","type":"multiple"},{"id":159,"stem":"机器视觉测量系统的硬件系统包括（ ）。","options":[{"label":"A","text":"光源"},{"label":"B","text":"相机"},{"label":"C","text":"镜头"},{"label":"D","text":"控制机构"}],"answer":["A","B","C","D"],"category":"竞赛综合","tags":["进阶"],"explanation":"机器视觉系统的硬件系统包括硬件检测平台由光源、相机、镜头以及控制机构等构成。","type":"multiple"},{"id":160,"stem":"机器视觉缺陷检测的优势有（ ）。","options":[{"label":"A","text":"基于机器视觉表面缺陷检测可以不断重复检测，更加可靠"},{"label":"B","text":"安全性高"},{"label":"C","text":"机器视觉检测产品缺陷时可对产品进行记录、统计及分析数据，方便及时发现产品缺陷并加以控制和管理"},{"label":"D","text":"成本低"}],"answer":["A","B","C","D"],"category":"竞赛综合","tags":["进阶"],"explanation":"机器视觉表面缺陷检测的优势有基于机器视觉表面缺陷检测可以不断重复检测，更加可靠；安全性高；机器视觉检测产品缺陷时可对产品进行记录、统计及分析数据，方便及时发现产品缺陷并加以控制和管理。","type":"multiple"},{"id":161,"stem":"Dobot Vision Studio中，仿射变换具有“抠图”和缩放图像的作用。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["A"],"category":"机器人与标定","tags":["基础"],"explanation":"Dobot Vision Studio 中不同工具面向定位、测量、识别、标定和逻辑处理，答题时要抓住工具名称对应的功能边界。 本题判断为“正确”。选项 A. 对，说明题干表述与该知识点一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":162,"stem":"Dobot Vision Studio中，直线查找可以直接使用RGB图像。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"机器人与标定","tags":["基础"],"explanation":"Dobot Vision Studio 中不同工具面向定位、测量、识别、标定和逻辑处理，答题时要抓住工具名称对应的功能边界。 本题判断为“错误”。选项 B. 错，说明题干表述与该知识点不一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":163,"stem":"相机是影响机器视觉系统输入的重要因素，它直接影响输入数据的质量和应用效果。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"视觉软件应用","tags":["基础"],"explanation":"相机相关题通常围绕分辨率、曝光、帧率、像素格式和采集方式；参数选择要服务于测量精度和成像质量。 本题判断为“错误”。选项 B. 错，说明题干表述与该知识点不一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":164,"stem":"确定视野大小，视野大小应该比检测对象略大一些。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["A"],"category":"视觉软件应用","tags":["基础"],"explanation":"视野估算通常要比产品实际尺寸略大，给定位误差、夹具偏差和边缘余量留空间。 本题判断为“正确”。选项 A. 对，说明题干表述与该知识点一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":165,"stem":"远心镜头工作距离是固定的。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["A"],"category":"视觉软件应用","tags":["基础"],"explanation":"镜头焦距、光圈、景深、视场角和畸变互相关联；焦距越短通常视场角越大、畸变更明显。 本题判断为“正确”。选项 A. 对，说明题干表述与该知识点一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":166,"stem":"绿色+红色叠加之后在黑白相机下呈现浅色。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"视觉软件应用","tags":["基础"],"explanation":"相机相关题通常围绕分辨率、曝光、帧率、像素格式和采集方式；参数选择要服务于测量精度和成像质量。 本题判断为“错误”。选项 B. 错，说明题干表述与该知识点不一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":167,"stem":"在实际选择相机和镜头时，要注意所选择的镜头的最大兼容CCD尺寸要等于所选择的相机芯片的尺寸。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"视觉软件应用","tags":["基础"],"explanation":"相机相关题通常围绕分辨率、曝光、帧率、像素格式和采集方式；参数选择要服务于测量精度和成像质量。 本题判断为“错误”。选项 B. 错，说明题干表述与该知识点不一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":168,"stem":"距离测量的关键是对定位距离的直线拟合。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["A"],"category":"视觉软件应用","tags":["基础"],"explanation":"本题考查视觉软件工具的功能选择，关键是把检测目标对应到定位、测量、识别、标定或图像处理模块。 本题判断为“正确”。选项 A. 对，说明题干表述与该知识点一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":169,"stem":"ROI区域仅可以设置一个。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"视觉软件应用","tags":["基础"],"explanation":"本题考查视觉软件工具的功能选择，关键是把检测目标对应到定位、测量、识别、标定或图像处理模块。 本题判断为“错误”。选项 B. 错，说明题干表述与该知识点不一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":170,"stem":"关节坐标系是以机器人底座为参照确定的坐标系（ ）。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"机器人与标定","tags":["综合"],"explanation":"关节坐标系是以各运动关节为参照确定的坐标系","type":"judge"},{"id":171,"stem":"为了提高机器人的视觉定位准确度，增强机器人的识别能力，需要对原始图像中的噪声、畸变进行去除和修正。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["A"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 本题判断为“正确”。选项 A. 对，说明题干表述与该知识点一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":172,"stem":"机器人总是需要外部的程序来执行任务。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"机器人与标定","tags":["基础"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 本题判断为“错误”。选项 B. 错，说明题干表述与该知识点不一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":173,"stem":"图像二值化处理便是将图像中感兴趣的部分置1，背景部分置0。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["A"],"category":"图像处理基础","tags":["基础"],"explanation":"二值化是把灰度图按阈值分成前景和背景，典型结果是 0 与 255 两类像素；中值滤波属于去噪，不是二值化类型。 本题判断为“正确”。选项 A. 对，说明题干表述与该知识点一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":174,"stem":"图像二值化是调整图像的色度、亮度、饱和度、对比度和分辨率，使得图像效果清晰和颜色分明。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"图像处理基础","tags":["基础"],"explanation":"二值化是把灰度图按阈值分成前景和背景，典型结果是 0 与 255 两类像素；中值滤波属于去噪，不是二值化类型。 本题判断为“错误”。选项 B. 错，说明题干表述与该知识点不一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":175,"stem":"最大工作速度通常指机器人单关节速度","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 本题判断为“错误”。选项 B. 错，说明题干表述与该知识点不一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":176,"stem":"创建TCP网络指令返回值为1时表示创建网络成功","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"编程与通信","tags":["综合"],"explanation":"TCP 在机器人应用中通常表示工具中心点或网络通信语境下的连接；题目要结合指令返回值和上下文判断。 本题判断为“错误”。选项 B. 错，说明题干表述与该知识点不一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":177,"stem":"图像采集卡用于聚集光线使目标能够在相机COMS上呈现出清晰的图像。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"竞赛综合","tags":["综合"],"explanation":"相机相关题通常围绕分辨率、曝光、帧率、像素格式和采集方式；参数选择要服务于测量精度和成像质量。 本题判断为“错误”。选项 B. 错，说明题干表述与该知识点不一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":178,"stem":"出现点位逆解算错误，可以通过调整机器人运行姿态来解决","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["A"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 本题判断为“正确”。选项 A. 对，说明题干表述与该知识点一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":179,"stem":"在 python 语言中表示“x 属于区间[a，b）” 的表达式是a<=x or x<b。","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"编程与通信","tags":["综合"],"explanation":"正确答案a≤x and x< b","type":"judge"},{"id":180,"stem":"机器人正解是通过关节角计算末端位姿，从多个位姿结果中取最优解","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["B"],"category":"机器人与标定","tags":["综合"],"explanation":"本题考查机器人与视觉协同中的坐标、TCP、标定、精度或运动学概念，关键是把视觉结果可靠转换为机器人动作。 本题判断为“错误”。选项 B. 错，说明题干表述与该知识点不一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":181,"stem":"机械臂配合视觉做标定时必须大于4个点","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["A"],"category":"机器人与标定","tags":["综合"],"explanation":"标定用于建立像素坐标、相机坐标、世界坐标或机器人坐标之间的映射，是视觉测量和视觉引导的基础。 本题判断为“正确”。选项 A. 对，说明题干表述与该知识点一致，复习时要抓住题干中的限定词。","type":"judge"},{"id":182,"stem":"相机标定的精度与标定板的制作精度无关。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["B"],"category":"成像与光学","tags":["挑战"],"explanation":"标定板制作精度越高，标定的精度也就越高。","type":"judge"},{"id":183,"stem":"DobotVisionStudio中，仿射变换不但具有“抠图” 作用，还可以通过定位和位置偏移纠偏图像，使图像旋转平移、缩放到模板状态。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["A"],"category":"机器人与标定","tags":["基础"],"explanation":"仿射变换不但具有“抠图” 作用，还可以通过定位和位置偏移纠偏图像，使图像旋转平移、缩放到模板状态。","type":"judge"},{"id":184,"stem":"DobotVisionStudio中，线线测量分为距离和绝对距离，距离的正反可以表示两条直线的相对位置关系，第一条只可以在第二条直线的左右/上下；在右边/下边则是正，在左边/上边是负。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["B"],"category":"机器人与标定","tags":["进阶"],"explanation":"DobotVisionStudio中，线线测量分为距离和绝对距离，距离的正反可以表示两条直线的相对位置关系，第一条只可以在第二条直线的左右/上下；在左边/上边则是正，在右边/下边是负。","type":"judge"},{"id":185,"stem":"字符识别可以同时识别多行的字符。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["B"],"category":"识别与检测","tags":["进阶"],"explanation":"字符识别可以同时识别单行的字符。","type":"judge"},{"id":186,"stem":"条形码6902890884910，2890代表制造商代码。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["A"],"category":"识别与检测","tags":["进阶"],"explanation":"条形码6902890884910，2890代表制造商代码。","type":"judge"},{"id":187,"stem":"当机器人末端安装工具之后，TCP发生了改变，因此需要对TCP重新进行标定。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["A"],"category":"编程与通信","tags":["基础"],"explanation":"当机器人末端安装工具之后，TCP发生了改变，因此需要对TCP重新进行标定。","type":"judge"},{"id":188,"stem":"定焦镜头，焦距越小，畸变越小。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["B"],"category":"成像与光学","tags":["基础"],"explanation":"定焦镜头，焦距越小，畸变越大。","type":"judge"},{"id":189,"stem":"不同波长的光对物体的穿透力不同，波长越长，光对物体的穿透力越强；波长越短，光在物体表面的扩散率越大。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["A"],"category":"机器视觉基础","tags":["基础"],"explanation":"不同波长的光对物体的穿透力不同，波长越长，光对物体的穿透力越强；波长越短，光在物体表面的扩散率越大。","type":"judge"},{"id":190,"stem":"环形光源是一种从侧面打光的照明光源，常用的角度是45度，也有更小的角度。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["B"],"category":"成像与光学","tags":["基础"],"explanation":"条形光源是一种从侧面打光的照明光源，常用的角度是45度，也有更小的角度。","type":"judge"},{"id":191,"stem":"Dobot Vision Studio中，圆查找先检测出多个边缘点然后拟合成圆形，可用于圆的定位与测量。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["A"],"category":"机器人与标定","tags":["基础"],"explanation":"Dobot Vision Studio中圆查找先检测出多个边缘点然后拟合成圆形，可用于圆的定位与测量。","type":"judge"},{"id":192,"stem":"焦距越小，景深越小。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["B"],"category":"竞赛综合","tags":["基础"],"explanation":"焦距越小，景深越大。","type":"judge"},{"id":193,"stem":"采集分为相机图像、本地图像和存储图像。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["A"],"category":"竞赛综合","tags":["基础"],"explanation":"采集分为相机图像、本地图像和存储图像。","type":"judge"},{"id":194,"stem":"视觉处理工具包括定位、测量、识别、标定、对位、图像处理、颜色处理、缺陷检测、逻辑工具等模块，不可依据方案需求选择相应的算法模块组合使用。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["B"],"category":"视觉软件应用","tags":["基础"],"explanation":"视觉处理工具包括定位、测量、识别、标定、对位、图像处理、颜色处理、缺陷检测、逻辑工具等模块，可依据方案需求选择相应的算法模块组合使用。","type":"judge"},{"id":195,"stem":"同一视野下，焦距越长，视场角越大。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["B"],"category":"竞赛综合","tags":["基础"],"explanation":"同一视野下，焦距越短，视场角越大。","type":"judge"},{"id":196,"stem":"光圈越大，图像亮度越暗。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["B"],"category":"竞赛综合","tags":["基础"],"explanation":"光圈越大，图像亮度越明亮。","type":"judge"},{"id":197,"stem":"产品尺寸为70mm×50mm的产品，视野应该估算为80mm×60mm。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["A"],"category":"竞赛综合","tags":["进阶"],"explanation":"产品尺寸为70mm×50mm的产品，视野应该估算为80mm×60mm。","type":"judge"},{"id":198,"stem":"字符识别的图像采集、图像处理、ROI分割和字符训练学习的图像采集、图像处理、ROI分割是一致的，而且各个步骤处理的参数必须和训练完全一样，否则获取的单字符图片完全没有可比性。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["A"],"category":"识别与检测","tags":["进阶"],"explanation":"字符识别的图像采集、图像处理、ROI分割和字符训练学习的图像采集、图像处理、ROI分割是一致的，而且各个步骤处理的参数必须和训练完全一样，否则获取的单字符图片完全没有可比性。","type":"judge"},{"id":199,"stem":"二维码识别的成功率很大程度上与二维码码图像本身的质量无关。","options":[{"label":"A","text":"正确"},{"label":"B","text":"错误"}],"answer":["B"],"category":"识别与检测","tags":["进阶"],"explanation":"二维码识别的成功率很大程度上与二维码码图像本身的质量有关。","type":"judge"},{"id":200,"stem":"字符识别系统的软件系统包括图像采集、图像处理、图像分割和字符识别等模块","options":[{"label":"A","text":"对"},{"label":"B","text":"错"}],"answer":["A"],"category":"视觉软件应用","tags":["综合"],"explanation":"字符识别通常包含图像采集、预处理、ROI 分割、字符训练/模板学习和识别输出，训练与识别阶段参数应保持一致。 本题判断为“正确”。选项 A. 对，说明题干表述与该知识点一致，复习时要抓住题干中的限定词。","type":"judge"}];
+    const KEY = "rk-vision-quiz-v1";
+    const now = () => Date.now();
+    const day = 24 * 60 * 60 * 1000;
+
+    const modes = [
+      ["smart", "智能练习", "推荐"],
+      ["order", "顺序练习", "逐题"],
+      ["random", "随机练习", "打乱"],
+      ["wrong", "错题复习", "纠错"],
+      ["favorite", "收藏夹", "重点"],
+      ["exam", "模拟考试", "计时"],
+      ["browse", "浏览题库", "检索"],
+    ];
+
+    const state = {
+      mode: "smart",
+      type: "all",
+      current: 1,
+      selected: new Set(),
+      revealed: false,
+      queue: [],
+      exam: null,
+      examResult: null,
+      examReviewIds: null,
+      progress: loadProgress(),
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const qById = new Map(QUESTIONS.map(q => [q.id, q]));
+
+    function loadProgress() {
+      const blank = {
+        version: 1,
+        records: {},
+        favorites: [],
+        notes: {},
+        streak: 0,
+        bestStreak: 0,
+        sessions: [],
+      };
+      try {
+        return Object.assign(blank, JSON.parse(localStorage.getItem(KEY) || "{}"));
+      } catch {
+        return blank;
+      }
+    }
+
+    function saveProgress() {
+      localStorage.setItem(KEY, JSON.stringify(state.progress));
+    }
+
+    function recordOf(id) {
+      if (!state.progress.records[id]) {
+        state.progress.records[id] = {
+          attempts: 0,
+          correct: 0,
+          wrong: 0,
+          last: 0,
+          due: 0,
+          level: 0,
+          mastered: false,
+          history: [],
+        };
+      }
+      return state.progress.records[id];
+    }
+
+    function filteredQuestions() {
+      const query = $("searchInput").value.trim().toLowerCase();
+      const category = $("categorySelect").value;
+      const tag = $("tagSelect").value;
+      return QUESTIONS.filter(q => {
+        if (state.type !== "all" && q.type !== state.type) return false;
+        if (category !== "all" && q.category !== category) return false;
+        if (tag !== "all" && !q.tags.includes(tag)) return false;
+        if (!query) return true;
+        const haystack = [q.stem, q.category, q.tags.join(" "), q.explanation, q.options.map(o => o.text).join(" ")].join(" ").toLowerCase();
+        return haystack.includes(query);
+      });
+    }
+
+    function poolForMode() {
+      const base = filteredQuestions();
+      if (state.mode === "wrong" && state.examReviewIds?.length) return state.examReviewIds.map(id => qById.get(id)).filter(Boolean);
+      if (state.mode === "wrong") return base.filter(q => (state.progress.records[q.id]?.wrong || 0) > 0);
+      if (state.mode === "favorite") return base.filter(q => state.progress.favorites.includes(q.id));
+      if (state.mode === "exam" && state.exam) return state.exam.ids.map(id => qById.get(id)).filter(Boolean);
+      return base;
+    }
+
+    function smartScore(q) {
+      const rec = state.progress.records[q.id];
+      if (!rec) return 70 + (q.id % 17);
+      const dueBoost = rec.due && rec.due <= now() ? 90 : 0;
+      const weak = rec.wrong * 18 - rec.correct * 5;
+      const old = rec.last ? Math.min(30, (now() - rec.last) / day) : 45;
+      const unseen = rec.attempts ? 0 : 80;
+      return dueBoost + weak + old + unseen - rec.level * 6;
+    }
+
+    function rebuildQueue() {
+      let pool = poolForMode();
+      if (!pool.length) pool = filteredQuestions();
+      if (state.mode === "smart") {
+        state.queue = [...pool].sort((a, b) => smartScore(b) - smartScore(a)).map(q => q.id);
+      } else if (state.mode === "random") {
+        state.queue = shuffle(pool.map(q => q.id));
+      } else {
+        state.queue = pool.map(q => q.id).sort((a, b) => a - b);
+      }
+      if (!state.queue.includes(state.current)) state.current = state.queue[0] || QUESTIONS[0].id;
+    }
+
+    function shuffle(items) {
+      const arr = [...items];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function renderTabs() {
+      $("modeTabs").innerHTML = modes.map(([id, name, hint]) => `
+        <button class="tab ${state.mode === id ? "active" : ""}" data-mode="${id}">
+          <span>${name}</span><small>${hint}</small>
+        </button>
+      `).join("");
+    }
+
+    function renderFilters() {
+      const categories = ["all", ...new Set(QUESTIONS.map(q => q.category))].sort((a, b) => a === "all" ? -1 : a.localeCompare(b, "zh-CN"));
+      const tags = ["all", ...new Set(QUESTIONS.flatMap(q => q.tags))].sort((a, b) => a === "all" ? -1 : a.localeCompare(b, "zh-CN"));
+      $("categorySelect").innerHTML = categories.map(c => `<option value="${escapeAttr(c)}" ${c === "all" ? "selected" : ""}>${c === "all" ? "全部分类" : c}</option>`).join("");
+      $("tagSelect").innerHTML = tags.map(t => `<option value="${escapeAttr(t)}" ${t === "all" ? "selected" : ""}>${t === "all" ? "全部标签" : t}</option>`).join("");
+    }
+
+    function render() {
+      renderTabs();
+      rebuildQueue();
+      const browse = state.mode === "browse";
+      const examIdle = state.mode === "exam" && !state.exam;
+      $("practiceView").style.display = browse ? "none" : "grid";
+      $("sideStack").style.display = browse || examIdle ? "none" : "";
+      $("browseView").classList.toggle("show", browse);
+      $("examBar").classList.toggle("show", state.mode === "exam" && !!state.exam);
+      $("examHome").classList.toggle("show", examIdle);
+      $("questionCard").style.display = examIdle ? "none" : "";
+      $("noteDrawer").style.display = state.mode === "exam" ? "none" : "";
+
+      const titles = {
+        smart: ["智能练习", "优先安排错题、到期复习题和未练题。"],
+        order: ["顺序练习", "按题号推进，适合第一轮过题。"],
+        random: ["随机练习", "打乱题目顺序，适合考前唤醒。"],
+        wrong: ["错题复习", "只看做错过的题。"],
+        favorite: ["收藏夹", "只看手动收藏的重点题。"],
+        exam: ["模拟考试", "计时答题，交卷后生成成绩。"],
+        browse: ["浏览题库", "快速检索、定位和跳转。"],
+      };
+      [$("viewTitle").textContent, $("viewSubtitle").textContent] = titles[state.mode];
+
+      if (browse) {
+        $("examHome").classList.remove("show");
+        renderBrowse();
+      } else if (examIdle) {
+        renderExamHome();
+      } else {
+        renderQuestion();
+      }
+      const inExam = state.mode === "exam";
+      $("submitBtn").textContent = inExam ? "保存答案" : "提交";
+      $("submitBtn").disabled = examIdle;
+      $("prevBtn").disabled = examIdle;
+      $("nextBtn").disabled = examIdle;
+      $("randomBtn").disabled = inExam;
+      $("favBtn").disabled = inExam;
+      renderStats();
+      renderHeatmap();
+      renderQueue();
+    }
+
+    function renderExamHome() {
+      const result = state.examResult;
+      $("resultBox").className = "result";
+      $("resultBox").innerHTML = "";
+      if (result) {
+        $("examHome").innerHTML = `
+          <article class="exam-hero">
+            <h3>考试成绩</h3>
+            <p>本次模拟考试共 50 题，满分 100 分。单选 30 题、多选 10 题、判断 10 题。</p>
+            <div class="score"><strong>${result.score}</strong><span>分</span></div>
+            <div class="stats-grid">
+              <div class="stat"><strong>${result.correct}</strong><span>答对</span></div>
+              <div class="stat"><strong>${result.done}</strong><span>已答</span></div>
+              <div class="stat"><strong>${result.minutes}</strong><span>分钟</span></div>
+              <div class="stat"><strong>${result.accuracy}%</strong><span>正确率</span></div>
+            </div>
+          </article>
+          <div class="actions" style="justify-content:flex-start">
+            <button id="startExamBtn" class="primary">再考一次</button>
+            <button id="reviewExamBtn">查看错题</button>
+          </div>
+        `;
+      } else {
+        $("examHome").innerHTML = `
+          <article class="exam-hero">
+            <h3>模拟考试</h3>
+            <p>点击开始后随机抽取 50 题，满分 100 分。题型分配为单选 30 题、多选 10 题、判断 10 题，交卷后显示分数。</p>
+          </article>
+          <button id="startExamBtn" class="primary" style="width:max-content">开始考试</button>
+        `;
+      }
+    }
+
+    function renderQuestion() {
+      const q = qById.get(state.current) || QUESTIONS[0];
+      const rec = state.progress.records[q.id] || {};
+      const examSaved = state.exam?.answers?.[q.id];
+      state.current = q.id;
+      state.selected = new Set(examSaved?.selected || []);
+      state.revealed = false;
+
+      $("metaRow").innerHTML = [
+        `<span class="pill">#${q.id}</span>`,
+        `<span class="pill">${typeName(q.type)}</span>`,
+        `<span class="pill">${escapeHtml(q.category)}</span>`,
+        ...q.tags.map(t => `<span class="pill warn">${escapeHtml(t)}</span>`),
+        rec.mastered ? `<span class="pill ok">已掌握</span>` : "",
+        rec.wrong ? `<span class="pill bad">错 ${rec.wrong}</span>` : "",
+      ].join("");
+      $("stem").textContent = q.stem;
+      $("options").innerHTML = q.options.map(o => `
+        <button class="option ${state.selected.has(o.label) ? "selected" : ""}" data-option="${o.label}">
+          <span class="letter">${o.label}</span>
+          <p>${escapeHtml(o.text)}</p>
+        </button>
+      `).join("");
+      $("resultBox").className = "result";
+      $("resultBox").innerHTML = "";
+      $("submitBtn").disabled = false;
+      $("noteInput").value = state.progress.notes[q.id] || "";
+      $("favBtn").textContent = state.progress.favorites.includes(q.id) ? "★" : "☆";
+      updateExamBar();
+    }
+
+    function renderStats() {
+      const records = Object.values(state.progress.records);
+      const answered = records.filter(r => r.attempts > 0).length;
+      const correct = records.reduce((sum, r) => sum + r.correct, 0);
+      const attempts = records.reduce((sum, r) => sum + r.attempts, 0);
+      const wrong = records.filter(r => r.wrong > 0).length;
+      const due = records.filter(r => r.due && r.due <= now() && !r.mastered).length;
+      const mastered = records.filter(r => r.mastered).length;
+      $("statAnswered").textContent = answered;
+      $("statRate").textContent = attempts ? `${Math.round(correct / attempts * 100)}%` : "0%";
+      $("statWrong").textContent = wrong;
+      $("statDue").textContent = due;
+      $("statStreak").textContent = state.progress.streak || 0;
+      $("statMastered").textContent = mastered;
+      $("progressFill").style.width = `${Math.round(answered / QUESTIONS.length * 100)}%`;
+      $("modeTabs").querySelectorAll(".tab").forEach(btn => {
+        const mode = btn.dataset.mode;
+        const small = btn.querySelector("small");
+        if (mode === "wrong") small.textContent = `${wrong} 题`;
+        if (mode === "favorite") small.textContent = `${state.progress.favorites.length} 题`;
+      });
+    }
+
+    function renderHeatmap() {
+      $("heatmap").innerHTML = QUESTIONS.map(q => {
+        const rec = state.progress.records[q.id];
+        const examAnswered = state.exam?.answers?.[q.id];
+        const cls = q.id === state.current ? "current" : examAnswered ? "seen" : rec?.wrong ? "wrong" : rec?.correct ? "right" : rec?.attempts ? "seen" : "";
+        return `<button class="dot ${cls}" title="第 ${q.id} 题" data-jump="${q.id}"></button>`;
+      }).join("");
+    }
+
+    function renderQueue() {
+      const ids = state.queue.slice(0, 12);
+      $("queueList").innerHTML = ids.map(id => {
+        const q = qById.get(id);
+        const rec = state.progress.records[id];
+        const status = state.exam ? (state.exam.answers[id] ? "已答" : "未答") : !rec ? "未练" : rec.wrong ? `错 ${rec.wrong}` : rec.mastered ? "掌握" : `对 ${rec.correct || 0}`;
+        return `<button class="mini-item ${id === state.current ? "active" : ""}" data-jump="${id}">
+          <strong>#${id}</strong>
+          <span>${escapeHtml(q.stem)}</span>
+          <small>${status}</small>
+        </button>`;
+      }).join("") || `<p style="color:var(--muted);margin:0">没有符合条件的题目</p>`;
+    }
+
+    function renderBrowse() {
+      const rows = filteredQuestions();
+      $("browseBody").innerHTML = rows.map(q => {
+        const rec = state.progress.records[q.id];
+        const status = !rec ? "未练" : rec.mastered ? "已掌握" : rec.wrong ? `错 ${rec.wrong}` : `已练 ${rec.attempts}`;
+        return `<tr>
+          <td>#${q.id}</td>
+          <td>${escapeHtml(q.stem)}</td>
+          <td>${escapeHtml(q.category)}</td>
+          <td>${status}</td>
+          <td><button data-open="${q.id}">打开</button></td>
+        </tr>`;
+      }).join("");
+    }
+
+    function selectOption(label) {
+      const q = qById.get(state.current);
+      if (state.revealed) return;
+      if (q.type === "multiple") {
+        state.selected.has(label) ? state.selected.delete(label) : state.selected.add(label);
+      } else {
+        state.selected = new Set([label]);
+      }
+      document.querySelectorAll(".option").forEach(btn => btn.classList.toggle("selected", state.selected.has(btn.dataset.option)));
+    }
+
+    function saveCurrentExamSelection(showToast = false) {
+      if (!state.exam || !state.selected.size) return false;
+      const q = qById.get(state.current);
+      if (!q) return false;
+      const selected = [...state.selected].sort();
+      const answer = [...q.answer].sort();
+      state.exam.answers[q.id] = { selected, correct: selected.join(",") === answer.join(",") };
+      updateExamBar();
+      if (showToast) toast("答案已保存");
+      return true;
+    }
+
+    function submitAnswer() {
+      const q = qById.get(state.current);
+      if (!q || state.revealed || !state.selected.size) {
+        if (!state.selected.size) toast("先选择答案");
+        return;
+      }
+      const selected = [...state.selected].sort();
+      const answer = [...q.answer].sort();
+      const correct = selected.join(",") === answer.join(",");
+      if (state.exam && state.mode === "exam") {
+        saveCurrentExamSelection(true);
+        renderHeatmap();
+        renderQueue();
+        const ids = state.queue.length ? state.queue : state.exam.ids;
+        const idx = ids.indexOf(state.current);
+        if (idx >= 0 && idx < ids.length - 1) move(1);
+        return;
+      }
+      state.revealed = true;
+      const rec = recordOf(q.id);
+      rec.attempts += 1;
+      rec.last = now();
+      rec.history.push({ t: now(), selected, correct });
+      rec.history = rec.history.slice(-20);
+      if (correct) {
+        rec.correct += 1;
+        rec.level = Math.min(5, rec.level + 1);
+        rec.due = now() + [1, 2, 4, 7, 15, 30][rec.level] * day;
+        rec.mastered = rec.level >= 4 && rec.wrong === 0;
+        state.progress.streak = (state.progress.streak || 0) + 1;
+        state.progress.bestStreak = Math.max(state.progress.bestStreak || 0, state.progress.streak);
+      } else {
+        rec.wrong += 1;
+        rec.level = Math.max(0, rec.level - 1);
+        rec.due = now() + 6 * 60 * 60 * 1000;
+        rec.mastered = false;
+        state.progress.streak = 0;
+      }
+      if (state.exam) {
+        state.exam.answers[q.id] = { selected, correct };
+      }
+      saveProgress();
+      showResult(q, correct);
+      renderStats();
+      renderHeatmap();
+      renderQueue();
+    }
+
+    function showResult(q, correct) {
+      document.querySelectorAll(".option").forEach(btn => {
+        const label = btn.dataset.option;
+        btn.classList.toggle("correct", q.answer.includes(label));
+        btn.classList.toggle("wrong", state.selected.has(label) && !q.answer.includes(label));
+      });
+      $("submitBtn").disabled = true;
+      $("resultBox").className = "result show";
+      $("resultBox").innerHTML = `
+        <h3>${correct ? "回答正确" : "回答错误"}</h3>
+        <p>正确答案：<strong>${q.answer.join("、")}</strong></p>
+        <p>${q.explanation ? escapeHtml(q.explanation) : "这道题暂无解析，可以把自己的记忆点写到笔记里。"}</p>
+        <div class="review-buttons">
+          <button data-review="hard">还需巩固</button>
+          <button data-review="normal">正常复习</button>
+          <button data-review="master">标为掌握</button>
+        </div>
+      `;
+    }
+
+    function move(delta) {
+      if (state.exam && state.mode === "exam") saveCurrentExamSelection(false);
+      const ids = state.queue.length ? state.queue : QUESTIONS.map(q => q.id);
+      const idx = Math.max(0, ids.indexOf(state.current));
+      const next = ids[(idx + delta + ids.length) % ids.length];
+      if (next) {
+        state.current = next;
+        render();
+      }
+    }
+
+    function jumpTo(id, mode) {
+      state.current = Number(id);
+      if (mode) state.mode = mode;
+      render();
+    }
+
+    function startExam() {
+      const singles = shuffle(QUESTIONS.filter(q => q.type === "single")).slice(0, 30);
+      const multiples = shuffle(QUESTIONS.filter(q => q.type === "multiple")).slice(0, 10);
+      const judges = shuffle(QUESTIONS.filter(q => q.type === "judge")).slice(0, 10);
+      const ids = shuffle([...singles, ...multiples, ...judges].map(q => q.id));
+      state.exam = {
+        ids,
+        started: now(),
+        answers: {},
+        mix: { single: singles.length, multiple: multiples.length, judge: judges.length },
+      };
+      state.examResult = null;
+      state.examReviewIds = null;
+      state.current = state.exam.ids[0];
+      toast(`模拟考试已开始：${ids.length} 题`);
+      render();
+    }
+
+    function finishExam() {
+      if (!state.exam) return;
+      saveCurrentExamSelection(false);
+      const total = state.exam.ids.length;
+      const done = Object.keys(state.exam.answers).length;
+      const correct = Object.values(state.exam.answers).filter(a => a.correct).length;
+      const score = Math.round((correct / total) * 100);
+      const minutes = Math.max(1, Math.round((now() - state.exam.started) / 60000));
+      const wrongIds = state.exam.ids.filter(id => !state.exam.answers[id]?.correct);
+      state.examResult = {
+        total,
+        done,
+        correct,
+        score,
+        minutes,
+        accuracy: Math.round((correct / total) * 100),
+        wrongIds,
+      };
+      toast(`交卷完成：${score} 分`);
+      state.progress.sessions.push({ t: now(), total, done, correct, score, minutes });
+      state.progress.sessions = state.progress.sessions.slice(-20);
+      state.exam = null;
+      saveProgress();
+      render();
+    }
+
+    function updateExamBar() {
+      if (!state.exam) return;
+      const elapsed = Math.floor((now() - state.exam.started) / 1000);
+      const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+      const ss = String(elapsed % 60).padStart(2, "0");
+      $("examTimer").textContent = `${mm}:${ss}`;
+      $("examProgress").textContent = `${Object.keys(state.exam.answers).length} / ${state.exam.ids.length}`;
+    }
+
+    function typeName(type) {
+      return type === "multiple" ? "多选" : type === "judge" ? "判断" : "单选";
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str).replace(/`/g, "&#96;");
+    }
+
+    function toast(message) {
+      $("toast").textContent = message;
+      $("toast").classList.add("show");
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => $("toast").classList.remove("show"), 2400);
+    }
+
+    document.addEventListener("click", (event) => {
+      const option = event.target.closest("[data-option]");
+      if (option) selectOption(option.dataset.option);
+
+      const mode = event.target.closest("[data-mode]");
+      if (mode) {
+        const nextMode = mode.dataset.mode;
+        const changed = state.mode !== nextMode;
+        state.mode = nextMode;
+        if (state.mode !== "wrong") state.examReviewIds = null;
+        if (state.mode !== "exam") state.examResult = null;
+        if (changed) state.current = -1;
+        render();
+      }
+
+      if (event.target.closest("#startExamBtn")) {
+        startExam();
+      }
+
+      if (event.target.closest("#reviewExamBtn")) {
+        const wrongIds = state.examResult?.wrongIds || [];
+        if (!wrongIds.length) {
+          toast("本次考试没有错题");
+        } else {
+          state.examReviewIds = wrongIds;
+          state.mode = "wrong";
+          state.current = wrongIds[0];
+          render();
+        }
+      }
+
+      const jump = event.target.closest("[data-jump]");
+      if (jump) jumpTo(jump.dataset.jump);
+
+      const open = event.target.closest("[data-open]");
+      if (open) jumpTo(open.dataset.open, "smart");
+
+      const review = event.target.closest("[data-review]");
+      if (review) {
+        const rec = recordOf(state.current);
+        if (review.dataset.review === "hard") {
+          rec.mastered = false;
+          rec.level = 0;
+          rec.due = now() + 3 * 60 * 60 * 1000;
+        }
+        if (review.dataset.review === "normal") {
+          rec.due = now() + 2 * day;
+        }
+        if (review.dataset.review === "master") {
+          rec.mastered = true;
+          rec.level = 5;
+          rec.due = now() + 45 * day;
+        }
+        saveProgress();
+        toast("复习计划已更新");
+        renderStats();
+        renderQueue();
+      }
+    });
+
+    $("submitBtn").addEventListener("click", submitAnswer);
+    $("nextBtn").addEventListener("click", () => move(1));
+    $("prevBtn").addEventListener("click", () => move(-1));
+    $("randomBtn").addEventListener("click", () => jumpTo(QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)].id));
+    $("finishExamBtn").addEventListener("click", finishExam);
+    $("favBtn").addEventListener("click", () => {
+      const favs = state.progress.favorites;
+      const idx = favs.indexOf(state.current);
+      idx >= 0 ? favs.splice(idx, 1) : favs.push(state.current);
+      saveProgress();
+      render();
+    });
+
+    $("noteInput").addEventListener("input", () => {
+      state.progress.notes[state.current] = $("noteInput").value;
+      saveProgress();
+    });
+
+    ["searchInput", "categorySelect", "tagSelect"].forEach(id => $(id).addEventListener("input", render));
+    $("typeTabs").addEventListener("click", event => {
+      const btn = event.target.closest("[data-type]");
+      if (!btn) return;
+      state.type = btn.dataset.type;
+      $("typeTabs").querySelectorAll("button").forEach(b => b.classList.toggle("active", b === btn));
+      render();
+    });
+
+    $("exportBtn").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(state.progress, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "睿抗刷题进度.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    $("importBtn").addEventListener("click", () => $("importFile").click());
+    $("importFile").addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      state.progress = Object.assign(loadProgress(), JSON.parse(await file.text()));
+      saveProgress();
+      toast("进度已导入");
+      render();
+    });
+
+    $("resetBtn").addEventListener("click", () => {
+      if (!confirm("确认清空本地刷题进度？")) return;
+      localStorage.removeItem(KEY);
+      state.progress = loadProgress();
+      render();
+    });
+
+    $("printBtn").addEventListener("click", () => window.print());
+
+    document.addEventListener("keydown", event => {
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) return;
+      const key = event.key.toUpperCase();
+      if (["A", "B", "C", "D"].includes(key)) selectOption(key);
+      if (event.key === "Enter") state.revealed ? move(1) : submitAnswer();
+      if (event.key === "ArrowRight") move(1);
+      if (event.key === "ArrowLeft") move(-1);
+    });
+
+    renderFilters();
+    render();
+    setInterval(updateExamBar, 1000);
+  </script>
+</body>
+</html>
